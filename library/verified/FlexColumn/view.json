@@ -1,0 +1,41 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "version": 0,
+        "props": {
+          "direction": "column",
+          "justify": "flex-start",
+          "alignItems": "stretch",
+          "style": {
+            "gap": "4px",
+            "padding": "4px"
+          }
+        },
+        "meta": {
+          "name": "col"
+        },
+        "position": {
+          "grow": 1
+        }
+      }
+    ]
+  }
+}

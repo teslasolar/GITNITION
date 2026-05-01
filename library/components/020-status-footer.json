@@ -1,0 +1,80 @@
+{
+  "id": "020",
+  "name": "StatusFooter",
+  "desc": "Bottom status bar with gateway info",
+  "component": "ia.container.flex",
+  "category": "container",
+  "params": {
+    "gateway": "",
+    "project": ""
+  },
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.container.flex",
+      "version": 0,
+      "props": {
+        "direction": "row",
+        "alignItems": "center",
+        "style": {
+          "backgroundColor": "#060810",
+          "borderTop": "1px solid #1a2030",
+          "height": "28px",
+          "padding": "0 10px",
+          "gap": "8px"
+        }
+      },
+      "meta": {
+        "name": "footer"
+      },
+      "position": {
+        "grow": 1
+      },
+      "children": [
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "● ONLINE",
+            "style": {
+              "fontSize": 8,
+              "color": "#42e898"
+            }
+          },
+          "meta": {
+            "name": "status"
+          },
+          "position": {}
+        },
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "",
+            "style": {
+              "fontSize": 8,
+              "color": "#3e4e64"
+            }
+          },
+          "meta": {
+            "name": "info"
+          },
+          "position": {
+            "grow": 1
+          },
+          "propConfig": {
+            "props.text": {
+              "binding": {
+                "type": "property",
+                "config": {
+                  "path": "view.params.gateway"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "status": "verified"
+}

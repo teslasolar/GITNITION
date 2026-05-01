@@ -1,0 +1,32 @@
+{
+  "id": "016",
+  "name": "FlexRow",
+  "desc": "Horizontal flex container for responsive layouts",
+  "component": "ia.container.flex",
+  "category": "container",
+  "params": {},
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.container.flex",
+      "version": 0,
+      "props": {
+        "direction": "row",
+        "wrap": "wrap",
+        "justify": "flex-start",
+        "alignItems": "center",
+        "style": {
+          "gap": "8px",
+          "padding": "4px"
+        }
+      },
+      "meta": {
+        "name": "row"
+      },
+      "position": {
+        "grow": 1
+      }
+    }
+  ],
+  "status": "verified"
+}

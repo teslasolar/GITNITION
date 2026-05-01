@@ -1,0 +1,102 @@
+{
+  "id": "019",
+  "name": "NavSidebar",
+  "desc": "Left nav dock with page links",
+  "component": "ia.container.flex",
+  "category": "container",
+  "params": {},
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.container.flex",
+      "version": 0,
+      "props": {
+        "direction": "column",
+        "style": {
+          "backgroundColor": "#0b0e16",
+          "borderRight": "1px solid #1a2030",
+          "width": "200px",
+          "padding": "8px 0"
+        }
+      },
+      "meta": {
+        "name": "nav"
+      },
+      "position": {
+        "shrink": 0
+      },
+      "children": [
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "NAVIGATION",
+            "style": {
+              "fontSize": 8,
+              "color": "#f57c20",
+              "letterSpacing": "1px",
+              "padding": "4px 12px",
+              "fontWeight": "600"
+            }
+          },
+          "meta": {
+            "name": "hdr"
+          },
+          "position": {}
+        },
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "Overview",
+            "style": {
+              "fontSize": 11,
+              "color": "#98a8c0",
+              "padding": "6px 12px",
+              "cursor": "pointer"
+            }
+          },
+          "meta": {
+            "name": "nav_overview"
+          },
+          "position": {}
+        },
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "Equipment",
+            "style": {
+              "fontSize": 11,
+              "color": "#98a8c0",
+              "padding": "6px 12px",
+              "cursor": "pointer"
+            }
+          },
+          "meta": {
+            "name": "nav_equip"
+          },
+          "position": {}
+        },
+        {
+          "type": "ia.display.label",
+          "version": 0,
+          "props": {
+            "text": "Alarms",
+            "style": {
+              "fontSize": 11,
+              "color": "#98a8c0",
+              "padding": "6px 12px",
+              "cursor": "pointer"
+            }
+          },
+          "meta": {
+            "name": "nav_alarms"
+          },
+          "position": {}
+        }
+      ]
+    }
+  ],
+  "status": "verified"
+}

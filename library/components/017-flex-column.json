@@ -1,0 +1,31 @@
+{
+  "id": "017",
+  "name": "FlexColumn",
+  "desc": "Vertical flex container for stacked layouts",
+  "component": "ia.container.flex",
+  "category": "container",
+  "params": {},
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.container.flex",
+      "version": 0,
+      "props": {
+        "direction": "column",
+        "justify": "flex-start",
+        "alignItems": "stretch",
+        "style": {
+          "gap": "4px",
+          "padding": "4px"
+        }
+      },
+      "meta": {
+        "name": "col"
+      },
+      "position": {
+        "grow": 1
+      }
+    }
+  ],
+  "status": "verified"
+}
