@@ -1,0 +1,95 @@
+{
+  "tags": {
+    "Exchange/assway/AssFarm/Storage/Farm/T01/T01_TK": {
+      "name": "T01_TK",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 72.5
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T01/T01_Temp": {
+      "name": "T01_Temp",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 165.3
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T01/T01_Press": {
+      "name": "T01_Press",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 12.4
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T01/T01_Level_HiHi": {
+      "name": "T01_Level_HiHi",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 95
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T02/T02_TK": {
+      "name": "T02_TK",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 45.2
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T02/T02_Temp": {
+      "name": "T02_Temp",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 78.1
+    },
+    "Exchange/assway/AssFarm/Storage/Farm/T02/T02_Press": {
+      "name": "T02_Press",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 8.2
+    },
+    "Exchange/assway/AssFarm/Metering/Skid/FT001_Flow": {
+      "name": "FT001_Flow",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 342.5
+    },
+    "Exchange/assway/AssFarm/Metering/Skid/FT001_Total": {
+      "name": "FT001_Total",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 125000
+    },
+    "Exchange/assway/AssFarm/Safety/Detectors/GD001_LEL": {
+      "name": "GD001_LEL",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 0
+    },
+    "Exchange/assway/AssFarm/Safety/Detectors/GD001_Alarm": {
+      "name": "GD001_Alarm",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Boolean",
+      "value": false
+    },
+    "Exchange/assway/AssFarm/Truck/Bay/TB01_Active": {
+      "name": "TB01_Active",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Boolean",
+      "value": false
+    },
+    "Exchange/assway/AssFarm/Truck/Bay/TB01_Volume": {
+      "name": "TB01_Volume",
+      "tagType": "AtomicTag",
+      "valueSource": "memory",
+      "dataType": "Float8",
+      "value": 0
+    }
+  }
+}
