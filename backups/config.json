@@ -1,0 +1,13 @@
+{
+  "host": "sir",
+  "httpConnectTimeoutMillis": 10000,
+  "httpReadTimeoutMillis": 60000,
+  "pingMaxMissed": 30,
+  "pingRateMillis": 1000,
+  "pingTimeoutMillis": 300,
+  "port": 8060,
+  "receiveThreads": 5,
+  "sendThreads": 5,
+  "useSSL": true,
+  "wsTimeoutMillis": 10000
+}
