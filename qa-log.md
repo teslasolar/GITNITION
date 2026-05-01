@@ -83,3 +83,10 @@ module to reload its internal page registry.
 **Alternative**: Use the `ign 🔥` auto-launch → login → project → publish flow
 **Note**: This is by design in Ignition — filesystem is the source of truth for
 backup/restore, but the running gateway maintains its own internal state
+**Confirmed**: Timestamp bump + restart does NOT fix it. Forum confirms
+Designer publish is the ONLY way to activate page configs.
+**Research**: https://forum.inductiveautomation.com/t/view-not-found-no-view-configured-for-this-page/61125
+**Workaround**: Use `ign 🔥` to auto-open Designer → save+publish
+**API Note**: Ignition 8.3 has OpenAPI at /openapi.json but requires HTTPS (403 on HTTP).
+SSL not configured on this Maker gateway so API is inaccessible.
+**WebDev**: Module not installed — no custom REST endpoints available
