@@ -1,10 +1,12 @@
 {
   "_schema": "gitnition/gateways/v1",
   "known": [
-    { "name": "Ignition-pred", "host": "localhost", "port": 8090, "edition": "maker", "version": "8.3.4" },
-    { "name": "House", "host": "desktop-m8npk96", "port": 8088, "edition": "standard" },
-    { "name": "Ignition-Sir", "host": "sir", "port": 8088, "edition": "standard" }
+    { "name": "Ignition-pred", "host": "localhost", "port": 8090, "edition": "maker", "version": "8.3.4", "status": "online" },
+    { "name": "House", "host": "desktop-m8npk96", "port": 8088, "edition": "standard", "status": "unknown" }
   ],
-  "scan_ports": [8088, 8090, 8043, 8060],
-  "scan_hosts": ["localhost", "127.0.0.1", "10.0.0.1", "pred", "sir"]
+  "offline": [
+    { "name": "Ignition-Sir", "host": "sir", "port": 8088, "edition": "standard", "status": "offline", "reason": "machine offline, removed from GAN + Designer Launcher", "tailscale": "100.73.203.102" }
+  ],
+  "scan_ports": [8088, 8090, 8043],
+  "scan_hosts": ["localhost", "127.0.0.1", "pred"]
 }

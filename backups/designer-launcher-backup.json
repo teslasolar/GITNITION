@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "global": {
+    "client.defaults": {
+      "timeout": 30,
+      "retries": -1,
+      "init.heap": null,
+      "max.heap": null,
+      "use.custom.jre": false,
+      "custom.jre.path": "${JAVA_HOME}/bin/java",
+      "jvm.arguments": [],
+      "client.tag.overrides": {}
+    },
+    "autoexit": false,
+    "signature.verification.strength": "MODERATE",
+    "application.view.mode": "CARD",
+    "default.application": "",
+    "multicast.address": "231.1.1.1",
+    "multicast.receive.port": 4446,
+    "lock.configuration": false,
+    "logger.level": "INFO",
+    "version.updates.prompt": true,
+    "version.updates.revision.diff": 3,
+    "trust.store": "jvm"
+  },
+  "applications": [
+    {
+      "window.mode": null,
+      "timeout": 30,
+      "screen": null,
+      "retries": -1,
+      "init.heap": null,
+      "max.heap": null,
+      "sun.java2d.d3d": null,
+      "sun.java2d.noddraw": null,
+      "jvm.arguments": [],
+      "client.tag.overrides": {},
+      "fallback.application": "",
+      "use.custom.jre": false,
+      "custom.jre.path": "${JAVA_HOME}/bin/java",
+      "signature.verification.suppress.legacy": false,
+      "name": "House (1)",
+      "description": null,
+      "gateway.info": {
+        "gateway.name": "House",
+        "gateway.address": "http://desktop-m8npk96:8088",
+        "redundant.gateways": []
+      },
+      "last.updated": 1727602102432,
+      "image.path": null,
+      "favorite": false
+    },
+    {
+      "window.mode": null,
+      "timeout": 30,
+      "screen": null,
+      "retries": -1,
+      "init.heap": null,
+      "max.heap": null,
+      "sun.java2d.d3d": null,
+      "sun.java2d.noddraw": null,
+      "jvm.arguments": [],
+      "client.tag.overrides": {},
+      "fallback.application": "",
+      "use.custom.jre": false,
+      "custom.jre.path": "${JAVA_HOME}/bin/java",
+      "signature.verification.suppress.legacy": false,
+      "name": "Ignition-pred (1)",
+      "description": null,
+      "gateway.info": {
+        "gateway.name": "Ignition-pred",
+        "gateway.address": "http://pred:8090",
+        "redundant.gateways": []
+      },
+      "last.updated": 1776620578464,
+      "image.path": null,
+      "favorite": false
+    },
+    {
+      "window.mode": null,
+      "timeout": 30,
+      "screen": null,
+      "retries": -1,
+      "init.heap": null,
+      "max.heap": null,
+      "sun.java2d.d3d": null,
+      "sun.java2d.noddraw": null,
+      "jvm.arguments": [],
+      "client.tag.overrides": {},
+      "fallback.application": "",
+      "use.custom.jre": false,
+      "custom.jre.path": "${JAVA_HOME}/bin/java",
+      "signature.verification.suppress.legacy": false,
+      "name": "Ignition-Sir",
+      "description": null,
+      "gateway.info": {
+        "gateway.name": "Ignition-Sir",
+        "gateway.address": "http://sir:8088",
+        "redundant.gateways": []
+      },
+      "last.updated": 1776788268486,
+      "image.path": null,
+      "favorite": false
+    }
+  ]
+}
