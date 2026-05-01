@@ -1,0 +1,7 @@
+{
+  "title": "Craft Brewery",
+  "description": "Brewhouse + fermentation",
+  "parent": "",
+  "enabled": true,
+  "inheritable": false
+}

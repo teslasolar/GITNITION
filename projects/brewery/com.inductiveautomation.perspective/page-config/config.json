@@ -1,0 +1,20 @@
+{
+  "pages": {
+    "/": {
+      "title": "Brewhouse",
+      "viewPath": "Brew/Overview"
+    },
+    "/Mash": {
+      "title": "Mash",
+      "viewPath": "Brew/Mash"
+    },
+    "/Fermentation": {
+      "title": "Fermentation",
+      "viewPath": "Brew/Fermentation"
+    },
+    "/CIP": {
+      "title": "CIP",
+      "viewPath": "Brew/CIP"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "pages": {
+    "/": {
+      "title": "Overview",
+      "viewPath": "Plant/Overview"
+    },
+    "/Intake": {
+      "title": "Intake",
+      "viewPath": "Plant/Intake"
+    },
+    "/Filter": {
+      "title": "Filter",
+      "viewPath": "Plant/Filter"
+    },
+    "/Distribution": {
+      "title": "Distribution",
+      "viewPath": "Plant/Distribution"
+    }
+  }
+}

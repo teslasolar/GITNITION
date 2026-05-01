@@ -1,0 +1,16 @@
+{
+  "pages": {
+    "/": {
+      "title": "Building",
+      "viewPath": "HVAC/Overview"
+    },
+    "/AHU": {
+      "title": "AHU",
+      "viewPath": "HVAC/AHU"
+    },
+    "/Zones": {
+      "title": "Zones",
+      "viewPath": "HVAC/Zones"
+    }
+  }
+}
