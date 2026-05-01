@@ -1,6 +1,6 @@
 {
   "tagType": "AtomicTag",
-  "dataType": "Float8",
+  "dataType": "Float4",
   "value": 0,
   "engUnit": "%"
 }
