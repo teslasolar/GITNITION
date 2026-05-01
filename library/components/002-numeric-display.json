@@ -1,0 +1,77 @@
+{
+  "id": "002",
+  "name": "NumericDisplay",
+  "desc": "Numeric display with value + unit label",
+  "component": "ia.display.label",
+  "category": "display",
+  "params": {
+    "value": 0,
+    "unit": "",
+    "label": ""
+  },
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "Value",
+        "style": {
+          "fontSize": 10,
+          "color": "#3e4e64"
+        }
+      },
+      "meta": {
+        "name": "lbl_name"
+      },
+      "position": {
+        "x": 10,
+        "y": 5,
+        "width": 120,
+        "height": 16
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "0.0",
+        "style": {
+          "fontSize": 24,
+          "fontWeight": "bold",
+          "color": "#42e898"
+        }
+      },
+      "meta": {
+        "name": "lbl_value"
+      },
+      "position": {
+        "x": 10,
+        "y": 22,
+        "width": 150,
+        "height": 32
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "unit",
+        "style": {
+          "fontSize": 10,
+          "color": "#98a8c0"
+        }
+      },
+      "meta": {
+        "name": "lbl_unit"
+      },
+      "position": {
+        "x": 165,
+        "y": 30,
+        "width": 60,
+        "height": 16
+      }
+    }
+  ],
+  "status": "verified"
+}

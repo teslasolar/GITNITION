@@ -1,0 +1,76 @@
+{
+  "runs": [
+    {
+      "id": "001",
+      "name": "Label",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:07:19.906Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "002",
+      "name": "NumericDisplay",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:07:49.933Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "003",
+      "name": "StatusIndicator",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:08:19.954Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "004",
+      "name": "ProgressBar",
+      "component": "ia.display.linear-scale",
+      "ts": "2026-05-01T07:08:49.981Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "005",
+      "name": "CylindricalTank",
+      "component": "ia.display.cylindrical-tank",
+      "ts": "2026-05-01T07:09:20.003Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    }
+  ],
+  "pass": 5,
+  "fail": 0
+}

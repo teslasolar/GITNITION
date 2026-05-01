@@ -1,0 +1,34 @@
+{
+  "id": "005",
+  "name": "CylindricalTank",
+  "desc": "Cylindrical tank visualization with level",
+  "component": "ia.display.cylindrical-tank",
+  "category": "display",
+  "params": {
+    "value": 0,
+    "min": 0,
+    "max": 100
+  },
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.display.cylindrical-tank",
+      "version": 0,
+      "props": {
+        "value": 65,
+        "min": 0,
+        "max": 100
+      },
+      "meta": {
+        "name": "tank"
+      },
+      "position": {
+        "x": 10,
+        "y": 10,
+        "width": 80,
+        "height": 160
+      }
+    }
+  ],
+  "status": "verified"
+}

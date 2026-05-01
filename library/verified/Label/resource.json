@@ -1,0 +1,14 @@
+{
+  "scope": "A",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "view.json"
+  ],
+  "attributes": {},
+  "lastModification": {
+    "actor": "gitnition-lib",
+    "timestamp": 1777619196606
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "tests": [
+    {
+      "id": "001",
+      "name": "Label",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:06:36.608Z"
+    },
+    {
+      "id": "002",
+      "name": "NumericDisplay",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.label",
+        "ia.display.label",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:06:36.610Z"
+    },
+    {
+      "id": "003",
+      "name": "StatusIndicator",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.icon",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:06:36.612Z"
+    },
+    {
+      "id": "004",
+      "name": "ProgressBar",
+      "component": "ia.display.linear-scale",
+      "types": [
+        "ia.display.linear-scale",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:06:36.616Z"
+    },
+    {
+      "id": "005",
+      "name": "CylindricalTank",
+      "component": "ia.display.cylindrical-tank",
+      "types": [
+        "ia.display.cylindrical-tank"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:06:36.618Z"
+    }
+  ],
+  "pass": 5,
+  "fail": 0
+}

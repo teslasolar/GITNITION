@@ -1,0 +1,44 @@
+{
+  "custom": {},
+  "params": {
+    "value": 0,
+    "min": 0,
+    "max": 100
+  },
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.display.cylindrical-tank",
+        "version": 0,
+        "props": {
+          "value": 65,
+          "min": 0,
+          "max": 100
+        },
+        "meta": {
+          "name": "tank"
+        },
+        "position": {
+          "x": 10,
+          "y": 10,
+          "width": 80,
+          "height": 160
+        }
+      }
+    ]
+  }
+}

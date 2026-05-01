@@ -1,0 +1,65 @@
+{
+  "custom": {},
+  "params": {
+    "value": 0,
+    "min": 0,
+    "max": 100
+  },
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.display.linear-scale",
+        "version": 0,
+        "props": {
+          "value": 50,
+          "min": 0,
+          "max": 100,
+          "orientation": "horizontal"
+        },
+        "meta": {
+          "name": "bar"
+        },
+        "position": {
+          "x": 10,
+          "y": 10,
+          "width": 220,
+          "height": 30
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "50%",
+          "style": {
+            "fontSize": 12,
+            "color": "#e8f0ff"
+          }
+        },
+        "meta": {
+          "name": "lbl_pct"
+        },
+        "position": {
+          "x": 240,
+          "y": 14,
+          "width": 50,
+          "height": 20
+        }
+      }
+    ]
+  }
+}

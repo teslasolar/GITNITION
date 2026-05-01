@@ -1,0 +1,33 @@
+{
+  "id": "001",
+  "name": "Label",
+  "desc": "Basic text label — simplest Perspective component",
+  "component": "ia.display.label",
+  "category": "display",
+  "params": {},
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "Hello from GitNITION Library",
+        "style": {
+          "fontSize": 16,
+          "fontWeight": "bold",
+          "color": "#e8f0ff"
+        }
+      },
+      "meta": {
+        "name": "lbl_test"
+      },
+      "position": {
+        "x": 10,
+        "y": 10,
+        "width": 280,
+        "height": 30
+      }
+    }
+  ],
+  "status": "verified"
+}

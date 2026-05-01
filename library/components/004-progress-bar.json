@@ -1,0 +1,55 @@
+{
+  "id": "004",
+  "name": "ProgressBar",
+  "desc": "Horizontal progress/level bar with value label",
+  "component": "ia.display.linear-scale",
+  "category": "display",
+  "params": {
+    "value": 0,
+    "min": 0,
+    "max": 100
+  },
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.display.linear-scale",
+      "version": 0,
+      "props": {
+        "value": 50,
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+      },
+      "meta": {
+        "name": "bar"
+      },
+      "position": {
+        "x": 10,
+        "y": 10,
+        "width": 220,
+        "height": 30
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "50%",
+        "style": {
+          "fontSize": 12,
+          "color": "#e8f0ff"
+        }
+      },
+      "meta": {
+        "name": "lbl_pct"
+      },
+      "position": {
+        "x": 240,
+        "y": 14,
+        "width": 50,
+        "height": 20
+      }
+    }
+  ],
+  "status": "verified"
+}

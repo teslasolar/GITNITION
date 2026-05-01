@@ -1,0 +1,55 @@
+{
+  "id": "003",
+  "name": "StatusIndicator",
+  "desc": "Circle + label showing on/off/fault status",
+  "component": "ia.display.label",
+  "category": "display",
+  "params": {
+    "state": false,
+    "label": ""
+  },
+  "bindings": [],
+  "children": [
+    {
+      "type": "ia.display.icon",
+      "version": 0,
+      "props": {
+        "path": "material/fiber_manual_record",
+        "color": "#42e898",
+        "style": {
+          "fontSize": 18
+        }
+      },
+      "meta": {
+        "name": "ico_status"
+      },
+      "position": {
+        "x": 8,
+        "y": 8,
+        "width": 24,
+        "height": 24
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "Status",
+        "style": {
+          "fontSize": 12,
+          "color": "#98a8c0"
+        }
+      },
+      "meta": {
+        "name": "lbl_status"
+      },
+      "position": {
+        "x": 36,
+        "y": 10,
+        "width": 120,
+        "height": 20
+      }
+    }
+  ],
+  "status": "verified"
+}
