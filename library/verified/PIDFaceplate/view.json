@@ -1,0 +1,195 @@
+{
+  "custom": {},
+  "params": {
+    "path": "",
+    "label": ""
+  },
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "",
+          "style": {
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#d4a94a"
+          }
+        },
+        "meta": {
+          "name": "hdr"
+        },
+        "position": {
+          "x": 8,
+          "y": 4,
+          "width": 180,
+          "height": 18
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.label"
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "PV: --",
+          "style": {
+            "fontSize": 14,
+            "color": "#e8f0ff"
+          }
+        },
+        "meta": {
+          "name": "pv"
+        },
+        "position": {
+          "x": 10,
+          "y": 26,
+          "width": 140,
+          "height": 22
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/PV",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "SP: --",
+          "style": {
+            "fontSize": 14,
+            "color": "#38b5f9"
+          }
+        },
+        "meta": {
+          "name": "sp"
+        },
+        "position": {
+          "x": 10,
+          "y": 50,
+          "width": 140,
+          "height": 22
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/SP",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.linear-scale",
+        "version": 0,
+        "props": {
+          "value": 0,
+          "min": 0,
+          "max": 100,
+          "orientation": "horizontal"
+        },
+        "meta": {
+          "name": "out_bar"
+        },
+        "position": {
+          "x": 10,
+          "y": 76,
+          "width": 180,
+          "height": 22
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/Output",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "AUTO",
+          "style": {
+            "fontSize": 10,
+            "color": "#42e898"
+          }
+        },
+        "meta": {
+          "name": "mode"
+        },
+        "position": {
+          "x": 10,
+          "y": 100,
+          "width": 60,
+          "height": 18
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/Mode",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

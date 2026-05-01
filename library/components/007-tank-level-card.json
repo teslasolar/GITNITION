@@ -1,0 +1,153 @@
+{
+  "id": "007",
+  "name": "TankLevelCard",
+  "desc": "Tank with level bar + temp + pressure bound to tag path",
+  "component": "ia.container.coord",
+  "category": "bound",
+  "params": {
+    "path": "",
+    "label": ""
+  },
+  "bindings": [
+    "tank.value → {path}/LevelPct",
+    "temp → {path}/Temperature",
+    "press → {path}/Pressure"
+  ],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "",
+        "style": {
+          "fontSize": 14,
+          "fontWeight": "bold",
+          "color": "#e8f0ff"
+        }
+      },
+      "meta": {
+        "name": "hdr"
+      },
+      "position": {
+        "x": 8,
+        "y": 4,
+        "width": 200,
+        "height": 20
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "property",
+            "config": {
+              "path": "view.params.label"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ia.display.cylindrical-tank",
+      "version": 0,
+      "props": {
+        "value": 0,
+        "min": 0,
+        "max": 100
+      },
+      "meta": {
+        "name": "tank"
+      },
+      "position": {
+        "x": 12,
+        "y": 28,
+        "width": 80,
+        "height": 160
+      },
+      "propConfig": {
+        "props.value": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.path}"
+              },
+              "tagPath": "{path}/LevelPct",
+              "fallbackDelay": 2.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "Temp: --",
+        "style": {
+          "fontSize": 11,
+          "color": "#98a8c0"
+        }
+      },
+      "meta": {
+        "name": "temp"
+      },
+      "position": {
+        "x": 104,
+        "y": 40,
+        "width": 180,
+        "height": 20
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.path}"
+              },
+              "tagPath": "{path}/Temperature",
+              "fallbackDelay": 2.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "Press: --",
+        "style": {
+          "fontSize": 11,
+          "color": "#98a8c0"
+        }
+      },
+      "meta": {
+        "name": "press"
+      },
+      "position": {
+        "x": 104,
+        "y": 64,
+        "width": 180,
+        "height": 20
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.path}"
+              },
+              "tagPath": "{path}/Pressure",
+              "fallbackDelay": 2.5
+            }
+          }
+        }
+      }
+    }
+  ],
+  "status": "verified"
+}

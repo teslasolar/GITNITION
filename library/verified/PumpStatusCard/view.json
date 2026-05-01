@@ -1,0 +1,166 @@
+{
+  "custom": {},
+  "params": {
+    "path": "",
+    "label": ""
+  },
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "",
+          "style": {
+            "fontSize": 14,
+            "fontWeight": "bold",
+            "color": "#e8f0ff"
+          }
+        },
+        "meta": {
+          "name": "hdr"
+        },
+        "position": {
+          "x": 8,
+          "y": 4,
+          "width": 200,
+          "height": 20
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.label"
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.icon",
+        "version": 0,
+        "props": {
+          "path": "material/fiber_manual_record",
+          "color": "#3e4e64",
+          "style": {
+            "fontSize": 20
+          }
+        },
+        "meta": {
+          "name": "ico_run"
+        },
+        "position": {
+          "x": 12,
+          "y": 30,
+          "width": 24,
+          "height": 24
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "STOPPED",
+          "style": {
+            "fontSize": 12,
+            "color": "#3e4e64"
+          }
+        },
+        "meta": {
+          "name": "lbl_state"
+        },
+        "position": {
+          "x": 40,
+          "y": 32,
+          "width": 100,
+          "height": 20
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "Amps: --",
+          "style": {
+            "fontSize": 11,
+            "color": "#98a8c0"
+          }
+        },
+        "meta": {
+          "name": "amps"
+        },
+        "position": {
+          "x": 12,
+          "y": 60,
+          "width": 130,
+          "height": 20
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/Amps",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "Speed: --",
+          "style": {
+            "fontSize": 11,
+            "color": "#98a8c0"
+          }
+        },
+        "meta": {
+          "name": "speed"
+        },
+        "position": {
+          "x": 12,
+          "y": 82,
+          "width": 130,
+          "height": 20
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}/Speed",
+                "fallbackDelay": 2.5
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

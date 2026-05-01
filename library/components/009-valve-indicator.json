@@ -1,0 +1,124 @@
+{
+  "id": "009",
+  "name": "ValveIndicator",
+  "desc": "Valve open/closed/transit with position bar",
+  "component": "ia.container.coord",
+  "category": "bound",
+  "params": {
+    "path": "",
+    "label": ""
+  },
+  "bindings": [
+    "open → {path}/Open",
+    "closed → {path}/Closed",
+    "position → {path}/Position"
+  ],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "",
+        "style": {
+          "fontSize": 12,
+          "fontWeight": "bold",
+          "color": "#e8f0ff"
+        }
+      },
+      "meta": {
+        "name": "hdr"
+      },
+      "position": {
+        "x": 8,
+        "y": 4,
+        "width": 180,
+        "height": 18
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "property",
+            "config": {
+              "path": "view.params.label"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ia.display.icon",
+      "version": 0,
+      "props": {
+        "path": "material/fiber_manual_record",
+        "color": "#3e4e64",
+        "style": {
+          "fontSize": 16
+        }
+      },
+      "meta": {
+        "name": "ico"
+      },
+      "position": {
+        "x": 10,
+        "y": 26,
+        "width": 20,
+        "height": 20
+      }
+    },
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "CLOSED",
+        "style": {
+          "fontSize": 11,
+          "color": "#3e4e64"
+        }
+      },
+      "meta": {
+        "name": "state"
+      },
+      "position": {
+        "x": 34,
+        "y": 28,
+        "width": 80,
+        "height": 18
+      }
+    },
+    {
+      "type": "ia.display.linear-scale",
+      "version": 0,
+      "props": {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+      },
+      "meta": {
+        "name": "pos_bar"
+      },
+      "position": {
+        "x": 10,
+        "y": 50,
+        "width": 180,
+        "height": 24
+      },
+      "propConfig": {
+        "props.value": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.path}"
+              },
+              "tagPath": "{path}/Position",
+              "fallbackDelay": 2.5
+            }
+          }
+        }
+      }
+    }
+  ],
+  "status": "verified"
+}

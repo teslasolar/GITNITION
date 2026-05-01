@@ -1,0 +1,51 @@
+{
+  "id": "006",
+  "name": "TagBoundLabel",
+  "desc": "Label bound to a tag value via indirect binding",
+  "component": "ia.display.label",
+  "category": "bound",
+  "params": {
+    "tagPath": ""
+  },
+  "bindings": [
+    "props.text → {tagPath}"
+  ],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "--",
+        "style": {
+          "fontSize": 20,
+          "color": "#42e898"
+        }
+      },
+      "meta": {
+        "name": "val"
+      },
+      "position": {
+        "x": 10,
+        "y": 10,
+        "width": 200,
+        "height": 30
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.tagPath}"
+              },
+              "tagPath": "{path}",
+              "fallbackDelay": 2.5
+            }
+          }
+        }
+      }
+    }
+  ],
+  "status": "verified"
+}
