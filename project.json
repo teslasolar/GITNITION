@@ -1,0 +1,7 @@
+{
+  "title": "GitNITION",
+  "description": "Git-native Ignition Gateway interface — discover, connect, browse, sync",
+  "parent": "",
+  "enabled": true,
+  "inheritable": true
+}
