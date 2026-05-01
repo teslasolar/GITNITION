@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🔥 GitNITION — Live</title>
+<link rel="stylesheet" href="ui/css/vars.css">
+<link rel="stylesheet" href="ui/css/components.css">
+</head>
+<body>
+<div class="H">
+  <span style="color:var(--ign);font-weight:700;font-size:11px">🔥 GitNITION</span>
+  <span style="color:var(--b);margin:0 6px">│</span>
+  <span id="state" style="color:var(--ok);font-size:8px">● BOOT</span>
+  <span style="flex:1"></span>
+  <span class="btn" onclick="doScan()" id="scan-btn">📡 Scan</span>
+  <span style="color:var(--b);margin:0 4px">│</span>
+  <span id="clock" style="color:var(--t2);font-size:8px"></span>
+</div>
+<div class="W" id="west"></div>
+<div class="M" id="main"></div>
+<div class="E" id="east"></div>
+<div class="S" id="status"></div>
+
+<script src="engine/scanner.js"></script>
+<script src="engine/gateway-api.js"></script>
+<script src="engine/sync.js"></script>
+<script src="views/dashboard.js"></script>
+<script src="views/projects.js"></script>
+<script src="views/tags.js"></script>
+<script src="views/nav.js"></script>
+<script src="views/east.js"></script>
+<script src="views/sync-view.js"></script>
+<script>
+function selectGateway(host, port) {
+  var gw = GW_LIST.find(function(g) { return g.host===host && g.port===port; });
+  if (gw) { setActiveGateway(gw); renderNav(document.getElementById('west')); renderEast(document.getElementById('east')); switchView(currentView); }
+}
+
+async function doScan() {
+  document.getElementById('state').textContent = '● SCANNING...';
+  document.getElementById('scan-btn').textContent = '⏳';
+  var results = await scanAll();
+  document.getElementById('state').textContent = '● ' + results.length + ' gateway(s)';
+  document.getElementById('scan-btn').textContent = '📡 Scan';
+  if (results.length) selectGateway(results[0].host, results[0].port);
+  renderNav(document.getElementById('west'));
+  switchView('dashboard');
+}
+
+(async function() {
+  await loadGatewayConfig();
+  renderNav(document.getElementById('west'));
+  renderEast(document.getElementById('east'));
+  document.getElementById('status').innerHTML = '<span style="color:var(--ok)">● READY</span><span style="flex:1"></span><span style="color:var(--t2)">GitNITION · Ignition Gateway Interface</span>';
+  document.getElementById('state').textContent = '● READY';
+  switchView('dashboard');
+  doScan();
+  setInterval(function() { var e=document.getElementById('clock'); if(e) e.textContent=new Date().toLocaleTimeString(); }, 1000);
+})();
+</script>
+</body>
+</html>

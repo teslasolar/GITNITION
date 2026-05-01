@@ -1,0 +1,19 @@
+.ph { font-size:7px; padding:3px 8px; color:var(--ign); letter-spacing:1px; font-weight:600;
+      background:rgba(245,124,32,.05); border-bottom:1px solid var(--b); }
+.nav-item { padding:3px 8px; font-size:8px; cursor:pointer; border-left:2px solid transparent; transition:.12s; }
+.nav-item:hover { background:rgba(56,181,249,.04); }
+.nav-item.on { background:rgba(245,124,32,.08); border-left-color:var(--ign); color:var(--wh); }
+.gw-card { background:var(--card); border:1px solid var(--b); border-radius:6px; padding:12px; margin:4px 0; cursor:pointer; transition:.15s; }
+.gw-card:hover { border-color:var(--ign); }
+.gw-card .name { color:var(--wh); font-size:11px; font-weight:700; }
+.gw-card .info { color:var(--t2); font-size:7px; margin-top:2px; }
+.gw-card .status { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:4px; }
+.gw-card .status.ok { background:var(--ok); }
+.gw-card .status.er { background:var(--er); }
+.gw-card .status.wr { background:var(--wr); }
+.tag-row { display:flex; justify-content:space-between; padding:2px 8px; font-size:7.5px; }
+.tag-row .k { color:var(--ign); } .tag-row .v { color:var(--ok); }
+.btn { background:var(--sf); border:1px solid var(--b); color:var(--t2); font-size:7px;
+       padding:2px 8px; cursor:pointer; border-radius:2px; }
+.btn:hover { border-color:var(--ign); color:var(--ign); }
+@media(max-width:600px){body{grid-template:'H'var(--bar-h) 'M'1fr 'S'24px/1fr}.W,.E{display:none}}
