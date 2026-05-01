@@ -216,8 +216,225 @@
       "hasResource": true,
       "status": "verified",
       "ts": "2026-05-01T07:12:54.164Z"
+    },
+    {
+      "id": "001",
+      "name": "Label",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.693Z"
+    },
+    {
+      "id": "002",
+      "name": "NumericDisplay",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.label",
+        "ia.display.label",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.695Z"
+    },
+    {
+      "id": "003",
+      "name": "StatusIndicator",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.icon",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.696Z"
+    },
+    {
+      "id": "004",
+      "name": "ProgressBar",
+      "component": "ia.display.linear-scale",
+      "types": [
+        "ia.display.linear-scale",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.697Z"
+    },
+    {
+      "id": "005",
+      "name": "CylindricalTank",
+      "component": "ia.display.cylindrical-tank",
+      "types": [
+        "ia.display.cylindrical-tank"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.698Z"
+    },
+    {
+      "id": "006",
+      "name": "TagBoundLabel",
+      "component": "ia.display.label",
+      "types": [
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.699Z"
+    },
+    {
+      "id": "007",
+      "name": "TankLevelCard",
+      "component": "ia.container.coord",
+      "types": [
+        "ia.display.label",
+        "ia.display.cylindrical-tank",
+        "ia.display.label",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.700Z"
+    },
+    {
+      "id": "008",
+      "name": "PumpStatusCard",
+      "component": "ia.container.coord",
+      "types": [
+        "ia.display.label",
+        "ia.display.icon",
+        "ia.display.label",
+        "ia.display.label",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.702Z"
+    },
+    {
+      "id": "009",
+      "name": "ValveIndicator",
+      "component": "ia.container.coord",
+      "types": [
+        "ia.display.label",
+        "ia.display.icon",
+        "ia.display.label",
+        "ia.display.linear-scale"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.704Z"
+    },
+    {
+      "id": "010",
+      "name": "PIDFaceplate",
+      "component": "ia.container.coord",
+      "types": [
+        "ia.display.label",
+        "ia.display.label",
+        "ia.display.label",
+        "ia.display.linear-scale",
+        "ia.display.label"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.704Z"
+    },
+    {
+      "id": "011",
+      "name": "ToggleSwitch",
+      "component": "ia.input.toggle-switch",
+      "types": [
+        "ia.display.label",
+        "ia.input.toggle-switch"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.706Z"
+    },
+    {
+      "id": "012",
+      "name": "NumericEntry",
+      "component": "ia.input.numeric-entry",
+      "types": [
+        "ia.display.label",
+        "ia.input.numeric-entry"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.707Z"
+    },
+    {
+      "id": "013",
+      "name": "ActionButton",
+      "component": "ia.input.button",
+      "types": [
+        "ia.input.button"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.709Z"
+    },
+    {
+      "id": "014",
+      "name": "DropdownSelector",
+      "component": "ia.input.dropdown",
+      "types": [
+        "ia.display.label",
+        "ia.input.dropdown"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.710Z"
+    },
+    {
+      "id": "015",
+      "name": "TextInput",
+      "component": "ia.input.text-field",
+      "types": [
+        "ia.display.label",
+        "ia.input.text-field"
+      ],
+      "typesValid": true,
+      "hasView": true,
+      "hasResource": true,
+      "status": "verified",
+      "ts": "2026-05-01T07:18:30.712Z"
     }
   ],
-  "pass": 15,
+  "pass": 30,
   "fail": 0
 }

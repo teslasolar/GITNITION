@@ -1,0 +1,50 @@
+{
+  "id": "013",
+  "name": "ActionButton",
+  "desc": "Button that writes a value to a tag on click",
+  "component": "ia.input.button",
+  "category": "input",
+  "params": {
+    "path": "",
+    "label": "Start",
+    "writeValue": true
+  },
+  "bindings": [
+    "onClick → write {writeValue} to {path}"
+  ],
+  "children": [
+    {
+      "type": "ia.input.button",
+      "version": 0,
+      "props": {
+        "text": "Start",
+        "style": {
+          "backgroundColor": "#10141e",
+          "borderColor": "#42e898",
+          "color": "#42e898",
+          "borderRadius": "4px"
+        }
+      },
+      "meta": {
+        "name": "btn"
+      },
+      "position": {
+        "x": 10,
+        "y": 10,
+        "width": 120,
+        "height": 32
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "property",
+            "config": {
+              "path": "view.params.label"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "status": "verified"
+}

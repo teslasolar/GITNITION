@@ -1,0 +1,87 @@
+{
+  "custom": {},
+  "params": {
+    "path": "",
+    "label": ""
+  },
+  "props": {
+    "defaultSize": {
+      "width": 300,
+      "height": 200
+    }
+  },
+  "root": {
+    "type": "ia.container.coord",
+    "version": 0,
+    "props": {
+      "mode": "fixed"
+    },
+    "meta": {
+      "name": "root"
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "version": 0,
+        "props": {
+          "text": "",
+          "style": {
+            "fontSize": 11,
+            "color": "#98a8c0"
+          }
+        },
+        "meta": {
+          "name": "lbl"
+        },
+        "position": {
+          "x": 8,
+          "y": 6,
+          "width": 120,
+          "height": 18
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.label"
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "ia.input.toggle-switch",
+        "version": 0,
+        "props": {
+          "selected": false
+        },
+        "meta": {
+          "name": "toggle"
+        },
+        "position": {
+          "x": 140,
+          "y": 4,
+          "width": 60,
+          "height": 24
+        },
+        "propConfig": {
+          "props.selected": {
+            "binding": {
+              "type": "tag",
+              "config": {
+                "mode": "indirect",
+                "references": {
+                  "path": "{view.params.path}"
+                },
+                "tagPath": "{path}",
+                "fallbackDelay": 2.5
+              },
+              "bidirectional": true
+            }
+          }
+        }
+      }
+    ]
+  }
+}

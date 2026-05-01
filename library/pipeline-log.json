@@ -69,8 +69,148 @@
         "anchored": false,
         "reason": "API timeout"
       }
+    },
+    {
+      "id": "001",
+      "name": "Label",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:12:54.247Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "002",
+      "name": "NumericDisplay",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:13:24.279Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "003",
+      "name": "StatusIndicator",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:13:54.317Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "004",
+      "name": "ProgressBar",
+      "component": "ia.display.linear-scale",
+      "ts": "2026-05-01T07:14:24.347Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "005",
+      "name": "CylindricalTank",
+      "component": "ia.display.cylindrical-tank",
+      "ts": "2026-05-01T07:14:54.381Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "006",
+      "name": "TagBoundLabel",
+      "component": "ia.display.label",
+      "ts": "2026-05-01T07:15:24.398Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "007",
+      "name": "TankLevelCard",
+      "component": "ia.container.coord",
+      "ts": "2026-05-01T07:15:54.423Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "008",
+      "name": "PumpStatusCard",
+      "component": "ia.container.coord",
+      "ts": "2026-05-01T07:16:24.452Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "009",
+      "name": "ValveIndicator",
+      "component": "ia.container.coord",
+      "ts": "2026-05-01T07:16:54.471Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
+    },
+    {
+      "id": "010",
+      "name": "PIDFaceplate",
+      "component": "ia.container.coord",
+      "ts": "2026-05-01T07:17:24.495Z",
+      "gwErrorsBefore": 0,
+      "gwErrorsAfter": 0,
+      "newErrors": 0,
+      "state": "ANCHORED",
+      "bsv": {
+        "anchored": false,
+        "reason": "API timeout"
+      }
     }
   ],
-  "pass": 5,
+  "pass": 15,
   "fail": 0
 }

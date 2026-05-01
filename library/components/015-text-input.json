@@ -1,0 +1,81 @@
+{
+  "id": "015",
+  "name": "TextInput",
+  "desc": "Text field that writes string to tag",
+  "component": "ia.input.text-field",
+  "category": "input",
+  "params": {
+    "path": "",
+    "label": "",
+    "placeholder": ""
+  },
+  "bindings": [
+    "value ↔ {path}"
+  ],
+  "children": [
+    {
+      "type": "ia.display.label",
+      "version": 0,
+      "props": {
+        "text": "",
+        "style": {
+          "fontSize": 11,
+          "color": "#98a8c0"
+        }
+      },
+      "meta": {
+        "name": "lbl"
+      },
+      "position": {
+        "x": 8,
+        "y": 6,
+        "width": 100,
+        "height": 18
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "property",
+            "config": {
+              "path": "view.params.label"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "ia.input.text-field",
+      "version": 0,
+      "props": {
+        "text": "",
+        "placeholder": "Enter value..."
+      },
+      "meta": {
+        "name": "input"
+      },
+      "position": {
+        "x": 120,
+        "y": 2,
+        "width": 160,
+        "height": 28
+      },
+      "propConfig": {
+        "props.text": {
+          "binding": {
+            "type": "tag",
+            "config": {
+              "mode": "indirect",
+              "references": {
+                "path": "{view.params.path}"
+              },
+              "tagPath": "{path}",
+              "fallbackDelay": 2.5
+            },
+            "bidirectional": true
+          }
+        }
+      }
+    }
+  ],
+  "status": "verified"
+}
