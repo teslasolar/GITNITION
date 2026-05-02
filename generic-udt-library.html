@@ -1,0 +1,5619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generic UDT Library — 70 UDTs · deep nested</title>
+<style>
+:root{--bg:#0b0e16;--card:#11151f;--b:#1f2638;--t:#cfd6e6;--t2:#7d89a3;
+--ig:#38b5f9;--ok:#42e898;--err:#ff4466;--lav:#b496ff;--gold:#ffd166;--mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--t);font-family:var(--mono);font-size:12px;line-height:1.5;height:100%}
+.app{display:grid;grid-template-rows:auto 1fr;height:100vh;min-height:0}
+.hdr{display:flex;align-items:center;gap:14px;padding:8px 16px;border-bottom:1px solid var(--b);background:var(--card)}
+.hdr h1{margin:0;font-size:13px;font-weight:600;color:var(--ig);letter-spacing:.5px}
+.hdr .stats{color:var(--t2);font-size:10px;display:flex;gap:10px}
+.hdr .stats b{color:var(--gold);font-weight:500}
+.hdr .grow{flex:1}
+.hdr button{font-family:inherit;font-size:10px;padding:5px 10px;background:var(--card);border:1px solid var(--b);color:var(--t);cursor:pointer;border-radius:3px;transition:.15s}
+.hdr button:hover{border-color:var(--ig);color:var(--ig)}
+.hdr button.go{border-color:var(--ig);color:var(--ig)}
+.hdr button.go:hover{background:var(--ig);color:var(--bg)}
+
+.body{display:grid;grid-template-columns:1fr 1.4fr;gap:1px;background:var(--b);min-height:0;overflow:hidden}
+.pane{background:var(--card);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.pane h2{margin:0;padding:6px 12px;font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.6px;border-bottom:1px solid var(--b);background:var(--bg);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.pane h2 .badge{background:var(--card);color:var(--ig);padding:1px 6px;border-radius:8px;font-size:9px;border:1px solid var(--b)}
+.pane .body{flex:1;min-height:0;overflow:hidden;background:var(--card)}
+textarea{width:100%;height:100%;background:var(--bg);color:var(--ok);border:none;padding:10px 14px;font-family:inherit;font-size:10px;resize:none;outline:none;line-height:1.4}
+.tree{flex:1;overflow:auto;padding:6px 4px;font-size:11px}
+.tn{margin-left:0}
+.tl{display:flex;align-items:center;gap:5px;padding:2px 6px;cursor:pointer;border-radius:3px;user-select:none;white-space:nowrap}
+.tl:hover{background:var(--bg)}
+.tl .arr{color:var(--t2);font-size:8px;width:8px;display:inline-block;text-align:center;transition:.1s}
+.tn.open>.tl>.arr{transform:rotate(90deg)}
+.tc{display:none;margin-left:14px;border-left:1px solid var(--b);padding-left:6px}
+.tn.open>.tc{display:block}
+.tn.leaf>.tl>.arr{visibility:hidden}
+.k{color:var(--gold)}.k-udt{color:var(--ig);font-weight:600}.k-inst{color:var(--lav)}.k-folder{color:var(--t)}.k-atom{color:var(--ok)}
+.tag{font-size:8.5px;color:var(--t2);background:var(--bg);padding:0 5px;border-radius:7px;border:1px solid var(--b)}
+.tag.t{color:var(--ok)}.tag.u{color:var(--lav)}.tag.f{color:var(--t2)}.tag.U{color:var(--ig)}
+.dimmed{color:var(--t2);font-size:9.5px;margin-left:4px}
+.search{padding:6px 8px;border-bottom:1px solid var(--b);background:var(--bg)}
+.search input{width:100%;background:var(--card);border:1px solid var(--b);color:var(--t);padding:5px 8px;border-radius:3px;font-family:inherit;font-size:10px;outline:none}
+.search input:focus{border-color:var(--ig)}
+.toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--ig);color:var(--bg);padding:7px 14px;font-size:10px;border-radius:4px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.on{opacity:1}
+.match{background:rgba(56,181,249,.15);border-radius:2px}
+@media (max-width:880px){.body{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>📦 Generic UDT Library</h1>
+    <div class="stats">
+      <span>🧬 <b>70</b> UDTs</span>
+      <span>📍 <b>490</b> atomic</span>
+      <span>🪞 <b>297</b> instances</span>
+      <span>📁 <b>66</b> folders</span>
+      <span>📦 <b>151</b> KB</span>
+    </div>
+    <span class="grow"></span>
+    <button class="go" id="copyBtn">📋 Copy JSON</button>
+    <button id="downloadBtn">⬇ Download</button>
+    <button id="selectBtn">☐ Select all</button>
+    <button id="expandBtn">⊞ Expand all</button>
+    <button id="collapseBtn">⊟ Collapse all</button>
+  </div>
+  <div class="body">
+    <div class="pane">
+      <h2>🌳 Tree preview <span class="badge" id="visCount"></span></h2>
+      <div class="search"><input id="searchIn" placeholder="filter by name (e.g. valve, alarm, P_Motor)..."></div>
+      <div class="tree" id="tree"></div>
+    </div>
+    <div class="pane">
+      <h2>📄 JSON · ready to import into Ignition Designer → Tag Browser → Import Tag(s) → <code>[default]_types_</code></h2>
+      <textarea id="udtJson" readonly spellcheck="false">{
+  "name": "Generic",
+  "tagType": "Folder",
+  "tags": [
+    {
+      "name": "Primitives",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Alarm",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Active",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false,
+              "documentation": "Alarm condition active"
+            },
+            {
+              "name": "Ack",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Latched",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Shelved",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Suppressed",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Priority",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 3,
+              "documentation": "0=Diag,1=Low,2=Med,3=High,4=Critical"
+            },
+            {
+              "name": "Setpoint",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "Deadband",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0.5
+            },
+            {
+              "name": "OnDelay",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "engUnit": "ms"
+            },
+            {
+              "name": "OffDelay",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "engUnit": "ms"
+            },
+            {
+              "name": "Message",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Pipeline",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "default"
+            },
+            {
+              "name": "DisplayPath",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "AssocData",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "{}"
+            },
+            {
+              "name": "Timestamp",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "AckTimestamp",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "AckUser",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ClearTimestamp",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "EventCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            }
+          ],
+          "description": "Single alarm \u2014 full Ignition-style superset.",
+          "parameters": [
+            "AlarmId"
+          ]
+        },
+        {
+          "name": "AlarmGroup",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "HiHi",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Hi",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Lo",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "LoLo",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "DevHi",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "DevLo",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "RateOfChange",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Stale",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "BadQuality",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "CommFault",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "SensorFault",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "ConfigFault",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "AnyActive",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "AnyUnacked",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Count",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "UnackedCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "HighestPriority",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            }
+          ],
+          "description": "Standard alarm bundle \u2014 12 sub-alarms + roll-ups."
+        },
+        {
+          "name": "AlarmExtended",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Group",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "Process",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Safety",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Quality",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Maintenance",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Alarm"
+            },
+            {
+              "name": "Diagnostics",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "WatchdogFailures",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "CycleOverruns",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "LastDiagAt",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                }
+              ]
+            }
+          ],
+          "description": "Group + 4 ISA-18.2 categories + diagnostics."
+        },
+        {
+          "name": "StatusCmd",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "State",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "0=Off,1=Standby,2=Starting,3=Running,4=Stopping,5=Fault,6=Maint"
+            },
+            {
+              "name": "StateText",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Available",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Enabled",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Interlocked",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "InterlockMessage",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "0=OK,1=Warn,2=Fault"
+            },
+            {
+              "name": "Mode",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "0=Off,1=Hand,2=Auto,3=Cascade,4=Override"
+            },
+            {
+              "name": "OwnerProgram",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "OwnerSession",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Commands",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Start",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Stop",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Reset",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Enable",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                },
+                {
+                  "name": "Disable",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Acknowledge",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "ToHand",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "ToAuto",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Override",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "ReleaseOverride",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "Audit",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "LastCommand",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "LastCommandTs",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "LastCommandUser",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "CommandCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                }
+              ]
+            }
+          ],
+          "description": "Common status + commands + audit, ISA-88-friendly."
+        },
+        {
+          "name": "Health",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Score",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100.0,
+              "documentation": "0-100 composite"
+            },
+            {
+              "name": "Status",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "0=OK,1=Warn,2=Fault,3=Critical"
+            },
+            {
+              "name": "StatusText",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "LastCheck",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CheckIntervalMs",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 1000
+            },
+            {
+              "name": "FailureCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "RecoveryCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "UptimeS",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "MTBF_h",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            }
+          ],
+          "description": "Generic health-score block."
+        },
+        {
+          "name": "ScanClass",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Rate",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 1000,
+              "engUnit": "ms"
+            },
+            {
+              "name": "Factor",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 1.0
+            },
+            {
+              "name": "Stale",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 10000,
+              "engUnit": "ms"
+            },
+            {
+              "name": "LeaseTime",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 30000
+            },
+            {
+              "name": "Subscribed",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Executing",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "OverrunCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "DriftMs",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            }
+          ],
+          "description": "Tag scan-class config."
+        },
+        {
+          "name": "EngScale",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "RawLo",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "RawHi",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 32767
+            },
+            {
+              "name": "EngLo",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "EngHi",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Format",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "#,##0.00"
+            },
+            {
+              "name": "ClampLo",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "ClampHi",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Linearize",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Deadband",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            }
+          ],
+          "description": "Raw\u2194engineering scaling block."
+        },
+        {
+          "name": "AnalogIO",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Raw",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "Scaled",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "Quality",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 192
+            },
+            {
+              "name": "Stale",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Clamped",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Filter",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "documentation": "EWMA alpha 0-1"
+            },
+            {
+              "name": "Filtered",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "LastUpdate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Scale",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/EngScale"
+            },
+            {
+              "name": "ScanClass",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScanClass"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            }
+          ],
+          "description": "Generic analog input/output channel."
+        },
+        {
+          "name": "DiscreteIO",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Value",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Inverted",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "OnDelay",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "engUnit": "ms"
+            },
+            {
+              "name": "OffDelay",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "engUnit": "ms"
+            },
+            {
+              "name": "OnCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "OffCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "LastTransition",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Quality",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 192
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            }
+          ],
+          "description": "Discrete I/O channel."
+        },
+        {
+          "name": "ScriptHook",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Code",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Scope",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "gateway"
+            },
+            {
+              "name": "Trigger",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "valueChanged"
+            },
+            {
+              "name": "Enabled",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "LastRun",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "LastError",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ExecCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "AvgExecMs",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "MaxExecMs",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            }
+          ],
+          "description": "Embeddable script hook."
+        },
+        {
+          "name": "AuditTrail",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Enabled",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "LastEvent",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "LastUser",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "LastTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "EventCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "RetentionDays",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 90
+            }
+          ],
+          "description": "Audit log pointer."
+        }
+      ]
+    },
+    {
+      "name": "State",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "FSM_Transition",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "From",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "To",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Event",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Guard",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Action",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Count",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            }
+          ],
+          "description": "One transition rule."
+        },
+        {
+          "name": "FSM_Event",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Ts",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "FromState",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ToState",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Source",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Payload",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "{}"
+            }
+          ],
+          "description": "One event in the FSM journal."
+        },
+        {
+          "name": "FSM_History",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Capacity",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 100
+            },
+            {
+              "name": "Count",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "LastEventTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Recent",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "E0",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/State/FSM_Event"
+                },
+                {
+                  "name": "E1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/State/FSM_Event"
+                },
+                {
+                  "name": "E2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/State/FSM_Event"
+                },
+                {
+                  "name": "E3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/State/FSM_Event"
+                },
+                {
+                  "name": "E4",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/State/FSM_Event"
+                }
+              ]
+            }
+          ],
+          "description": "Ring buffer of recent transitions."
+        },
+        {
+          "name": "FSM",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Config",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "States",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "",
+                  "documentation": "comma list"
+                },
+                {
+                  "name": "InitState",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "idle"
+                },
+                {
+                  "name": "Final",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "BackoffMs",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 1000
+                },
+                {
+                  "name": "MaxRetries",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 10
+                }
+              ]
+            },
+            {
+              "name": "Status",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Current",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "idle"
+                },
+                {
+                  "name": "Previous",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "Since",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "TransitionCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "LastError",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "Healthy",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                },
+                {
+                  "name": "ErrCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "NextRetryAt",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                }
+              ]
+            },
+            {
+              "name": "Cmd",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Transition",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "Reset",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Heal",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Pause",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Resume",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "History",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM_History"
+            }
+          ],
+          "description": "Generic state machine \u2014 nest anywhere."
+        }
+      ]
+    },
+    {
+      "name": "Instruments",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "PT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "psig"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Pressure transmitter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "TT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "degF"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Temperature transmitter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "FT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "gpm"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Flow transmitter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "LT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "in"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Level transmitter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "AT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "ppm"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Analytical transmitter (gas/composition)",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "ZT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "%"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Position transmitter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "pH",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "pH"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "pH analyzer",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "DT",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Signal",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "EngUnits",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "SG"
+            },
+            {
+              "name": "LRV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "URV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Damping",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "s"
+            },
+            {
+              "name": "CalDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "CalDueDate",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Manufacturer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Model",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Density meter",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "RTD",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Resistance",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100,
+              "engUnit": "ohm"
+            },
+            {
+              "name": "Temp",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "degC"
+            },
+            {
+              "name": "RTDType",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "Pt100"
+            },
+            {
+              "name": "Wires",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 4
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            }
+          ],
+          "description": "Resistance temperature detector."
+        },
+        {
+          "name": "Thermocouple",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "MV",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "mV"
+            },
+            {
+              "name": "Temp",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0,
+              "engUnit": "degC"
+            },
+            {
+              "name": "Type",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "K"
+            },
+            {
+              "name": "ColdJunction",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 25,
+              "engUnit": "degC"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            }
+          ],
+          "description": "Thermocouple input."
+        },
+        {
+          "name": "MultiVarTransmitter",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "DP",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/PT"
+            },
+            {
+              "name": "SP",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/PT"
+            },
+            {
+              "name": "PV",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/PT"
+            },
+            {
+              "name": "TT",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/TT"
+            },
+            {
+              "name": "HartAddr",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Burst",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            }
+          ],
+          "description": "Multivariable HART transmitter."
+        }
+      ]
+    },
+    {
+      "name": "Loops",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "PID",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "PV",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "SP",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "OUT",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "Tuning",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Kp",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 1.0
+                },
+                {
+                  "name": "Ki",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0.1
+                },
+                {
+                  "name": "Kd",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0.01
+                },
+                {
+                  "name": "Ts",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 1.0,
+                  "engUnit": "s"
+                },
+                {
+                  "name": "WindupGuard",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 100
+                },
+                {
+                  "name": "DerivOnPV",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "Mode",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Mode",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 2,
+                  "documentation": "0=Manual,1=Auto,2=Cascade,3=Track"
+                },
+                {
+                  "name": "Manual",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Tracking",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Bumpless",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                },
+                {
+                  "name": "Initialized",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "Diagnostics",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Error",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "DError",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "IError",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "LastTuneTs",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "OscillationDetected",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "PerfIndex",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Single PID loop with tuning + diagnostics + FSM.",
+          "parameters": [
+            "LoopId"
+          ]
+        },
+        {
+          "name": "CascadePID",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Primary",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "Secondary",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "CascadeReady",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "MasterMode",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 2
+            }
+          ],
+          "description": "Master-slave cascade."
+        },
+        {
+          "name": "RatioControl",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Wild",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "Controlled",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "Ratio",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 1.0
+            },
+            {
+              "name": "Bias",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "RatioMin",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0.1
+            },
+            {
+              "name": "RatioMax",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 10
+            }
+          ],
+          "description": "Ratio controller."
+        },
+        {
+          "name": "FeedForward",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Disturbance",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "MainLoop",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "Gain",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 1.0
+            },
+            {
+              "name": "LeadS",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "LagS",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            }
+          ],
+          "description": "Feed-forward block."
+        },
+        {
+          "name": "OverrideSelect",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Inputs",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "A",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Loops/PID"
+                },
+                {
+                  "name": "B",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Loops/PID"
+                },
+                {
+                  "name": "C",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Loops/PID"
+                }
+              ]
+            },
+            {
+              "name": "Selection",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "HighSelect",
+              "documentation": "HighSelect|LowSelect|Median"
+            },
+            {
+              "name": "ActiveInput",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            }
+          ],
+          "description": "Override / median select."
+        },
+        {
+          "name": "SplitRange",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "InputLoop",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "OutputA",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Min",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "Max",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 50
+                },
+                {
+                  "name": "Out",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                }
+              ]
+            },
+            {
+              "name": "OutputB",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Min",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 50
+                },
+                {
+                  "name": "Max",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 100
+                },
+                {
+                  "name": "Out",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                }
+              ]
+            }
+          ],
+          "description": "Split-range output."
+        }
+      ]
+    },
+    {
+      "name": "Sequences",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Step",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Number",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Description",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "DurationS",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "ElapsedS",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "StartTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "EndTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Active",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Complete",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Failed",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "OnEnter",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScriptHook"
+            },
+            {
+              "name": "OnExit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScriptHook"
+            }
+          ],
+          "description": "Sequence step."
+        },
+        {
+          "name": "StepTransition",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "FromStep",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "ToStep",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Condition",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Triggered",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Count",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            }
+          ],
+          "description": "Step\u2192step transition."
+        },
+        {
+          "name": "Phase",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "PhaseId",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "State",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "ISA-88: 0=Idle,1=Running,2=Holding,3=Held,4=Restarting,5=Complete,6=Stopping,7=Stopped,8=Aborting,9=Aborted"
+            },
+            {
+              "name": "StateText",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "Idle"
+            },
+            {
+              "name": "Commands",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Start",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Hold",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Restart",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Stop",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Abort",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Reset",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "Status",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Running",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Held",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Complete",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Failed",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Owner",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "OwnerCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "CurrentStep",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Step"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "ISA-88 equipment phase.",
+          "parameters": [
+            "PhaseId",
+            "RecipeId"
+          ]
+        },
+        {
+          "name": "Recipe",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "RecipeId",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Version",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "1.0"
+            },
+            {
+              "name": "Author",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Approved",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "ApprovalTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Parameters",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "P01",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P02",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P03",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P04",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P05",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P06",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P07",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P08",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P09",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P10",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P11",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P12",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P13",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P14",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P15",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "P16",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "Phases",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "P1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P4",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P5",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P6",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P7",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                },
+                {
+                  "name": "P8",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Sequences/Phase"
+                }
+              ]
+            },
+            {
+              "name": "Audit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AuditTrail"
+            }
+          ],
+          "description": "ISA-88 master recipe with 16 params + 8 phases."
+        },
+        {
+          "name": "Sequencer",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Step",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Total",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Running",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Paused",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Fault",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "StepName",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Timer",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "Current",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Step"
+            },
+            {
+              "name": "StartScript",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScriptHook"
+            },
+            {
+              "name": "StepScript",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScriptHook"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Generic step sequencer."
+        },
+        {
+          "name": "Batch",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "BatchId",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ProductCode",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "StartTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "EndTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Status",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "Pending"
+            },
+            {
+              "name": "ResultGood",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Operator",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Lot",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Recipe",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Recipe"
+            },
+            {
+              "name": "Audit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AuditTrail"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Batch execution record."
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Valve",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Position",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "OpenLS",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "ClosedLS",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Feedback",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "PositionPct",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "%"
+                }
+              ]
+            },
+            {
+              "name": "Output",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "OpenCmd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "CloseCmd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Throttle",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                }
+              ]
+            },
+            {
+              "name": "Config",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "ValveType",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "BLOCK",
+                  "documentation": "BLOCK|CONTROL|3WAY|CHECK"
+                },
+                {
+                  "name": "ControlMode",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "DIGITAL"
+                },
+                {
+                  "name": "FailMode",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "CLOSE"
+                },
+                {
+                  "name": "TravelTimeS",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 10
+                },
+                {
+                  "name": "DeadbandPct",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "name": "Diagnostics",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "StrokeCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "LastStrokeMs",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "StuckOpen",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "StuckClosed",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "OverTravel",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "PartialStrokeOk",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            },
+            {
+              "name": "Audit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AuditTrail"
+            }
+          ],
+          "description": "Universal valve \u2014 block, control, 3-way, or check.",
+          "parameters": [
+            "DeviceId",
+            "ValveType",
+            "ControlMode"
+          ]
+        },
+        {
+          "name": "Motor",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Inputs",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Running",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Fault",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Ready",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "EStopOK",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                }
+              ]
+            },
+            {
+              "name": "Outputs",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "StartCmd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "StopCmd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "SpeedRef",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                }
+              ]
+            },
+            {
+              "name": "Telemetry",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Amps",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Speed",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Volts",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Power",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Torque",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "WindingTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/RTD"
+                },
+                {
+                  "name": "BearingTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/RTD"
+                }
+              ]
+            },
+            {
+              "name": "Vibration",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Inline",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Perp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Axial",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "EnvelopeAlarm",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "VFD",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "DriveType",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "PF755"
+                },
+                {
+                  "name": "DriveStatus",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "DriveFault",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "DCBus",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "V"
+                },
+                {
+                  "name": "HeatsinkTemp",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "degC"
+                },
+                {
+                  "name": "OutputFreq",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "Hz"
+                }
+              ]
+            },
+            {
+              "name": "Lifecycle",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "RunHours",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "hrs"
+                },
+                {
+                  "name": "StartCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "FaultCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                },
+                {
+                  "name": "LastStartTs",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                },
+                {
+                  "name": "LastFaultTs",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": ""
+                }
+              ]
+            },
+            {
+              "name": "HOA",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0,
+              "documentation": "0=Off,1=Hand,2=Auto"
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            },
+            {
+              "name": "Audit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AuditTrail"
+            }
+          ],
+          "description": "Motor + VFD + bearings + vibration + lifecycle.",
+          "parameters": [
+            "DeviceId",
+            "RatedHP",
+            "DriveType"
+          ]
+        },
+        {
+          "name": "Pump",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Motor",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Motor"
+            },
+            {
+              "name": "Hydraulics",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Suction",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "Discharge",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "Differential",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Flow",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/FT"
+                }
+              ]
+            },
+            {
+              "name": "Seal",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Pressure",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "Level",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/LT"
+                },
+                {
+                  "name": "FlushOK",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                },
+                {
+                  "name": "LeakDetected",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "Cooling",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "InletTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "OutletTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "CoolingFlowOK",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "FlowSwitch",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/DiscreteIO"
+            },
+            {
+              "name": "SuctionValve",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "DischargeValve",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "CavitationDetected",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "DryRunDetected",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Pump = motor + hydraulics + seal + cooling + valves.",
+          "parameters": [
+            "DeviceId",
+            "RatedFlow",
+            "RatedHead"
+          ]
+        },
+        {
+          "name": "Fan",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Motor",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Motor"
+            },
+            {
+              "name": "InletDP",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/PT"
+            },
+            {
+              "name": "Damper",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "Vibration",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            }
+          ],
+          "description": "Industrial fan.",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "Compressor",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Motor",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Motor"
+            },
+            {
+              "name": "Stages",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "S1Suction",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "S1Discharge",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "S1Temp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "S2Suction",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "S2Discharge",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "S2Temp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                }
+              ]
+            },
+            {
+              "name": "AntiSurge",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "RecycleValve",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "SurgeMargin",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "SurgeAlarm",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Multi-stage compressor with anti-surge.",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "HeatExchanger",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Hot",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "InletT",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "OutletT",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "Flow",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/FT"
+                }
+              ]
+            },
+            {
+              "name": "Cold",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "InletT",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "OutletT",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "Flow",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/FT"
+                }
+              ]
+            },
+            {
+              "name": "Performance",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "DeltaT_Hot",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "DeltaT_Cold",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "HeatDuty",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "U_Coefficient",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "FoulingDetected",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "BypassValve",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Shell-and-tube heat exchanger.",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "Vessel",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Level",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Primary",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/LT"
+                },
+                {
+                  "name": "Backup",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/LT"
+                },
+                {
+                  "name": "LSHH",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "LSLL",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                }
+              ]
+            },
+            {
+              "name": "Pressure",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Primary",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "Backup",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/PT"
+                },
+                {
+                  "name": "ReliefValve",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                }
+              ]
+            },
+            {
+              "name": "Temperature",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Top",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "Mid",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "Bottom",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "Skin",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                }
+              ]
+            },
+            {
+              "name": "Composition",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "pH",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/pH"
+                },
+                {
+                  "name": "Density",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/Density"
+                },
+                {
+                  "name": "Conductivity",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/AT"
+                }
+              ]
+            },
+            {
+              "name": "Valves",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Inlet",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "Outlet",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "Drain",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "Vent",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "Recirc",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                }
+              ]
+            },
+            {
+              "name": "Calculated",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Volume",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "Mass",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                },
+                {
+                  "name": "PercentFull",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/AnalogIO"
+                }
+              ]
+            },
+            {
+              "name": "LevelLoop",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "PressureLoop",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/PID"
+            },
+            {
+              "name": "TempLoop",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Loops/Cascade"
+            },
+            {
+              "name": "Sequencer",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Sequencer"
+            },
+            {
+              "name": "StatusCmd",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/StatusCmd"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Tank/vessel \u2014 full instrumentation, control loops, sequencer.",
+          "parameters": [
+            "DeviceId",
+            "CapacityGal"
+          ]
+        },
+        {
+          "name": "Reactor",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Vessel",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Vessel"
+            },
+            {
+              "name": "Agitator",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Motor",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Motor"
+                },
+                {
+                  "name": "SpeedSetpoint",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Loops/PID"
+                }
+              ]
+            },
+            {
+              "name": "Jacket",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "InletTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "OutletTemp",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/TT"
+                },
+                {
+                  "name": "FlowRate",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Instruments/FT"
+                },
+                {
+                  "name": "Valve",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/Valve"
+                },
+                {
+                  "name": "HeatExchanger",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Devices/HeatExchanger"
+                }
+              ]
+            },
+            {
+              "name": "Reactions",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Phase",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "Idle"
+                },
+                {
+                  "name": "Conversion",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0,
+                  "engUnit": "%"
+                },
+                {
+                  "name": "CycleTimeS",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 0
+                },
+                {
+                  "name": "BatchCount",
+                  "tagType": "AtomicTag",
+                  "valueType": "Int4",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "CurrentBatch",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Batch"
+            }
+          ],
+          "description": "Reactor = vessel + agitator + jacket + batches.",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "Hopper",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Level",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Instruments/LT"
+            },
+            {
+              "name": "WeightCell",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "HighLevel",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/DiscreteIO"
+            },
+            {
+              "name": "LowLevel",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/DiscreteIO"
+            },
+            {
+              "name": "InletGate",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "OutletFeeder",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Motor"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            }
+          ],
+          "description": "Solids hopper.",
+          "parameters": [
+            "DeviceId"
+          ]
+        },
+        {
+          "name": "Conveyor",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Drive",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Motor"
+            },
+            {
+              "name": "Speed",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AnalogIO"
+            },
+            {
+              "name": "Sensors",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "HeadEnd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "TailEnd",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Misalignment",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "BeltSlip",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                },
+                {
+                  "name": "Pullcord",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Primitives/DiscreteIO"
+                }
+              ]
+            },
+            {
+              "name": "BeltLengthFt",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 100
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmExtended"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "Belt conveyor with safeties.",
+          "parameters": [
+            "DeviceId"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Network",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Auth",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Method",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "basic",
+              "documentation": "basic|apikey|bearer|oauth2|none"
+            },
+            {
+              "name": "User",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "PassRef",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "***"
+            },
+            {
+              "name": "ApiKeyHeader",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "X-Ignition-API-Key"
+            },
+            {
+              "name": "ApiKeyRef",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "***"
+            },
+            {
+              "name": "BearerRef",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "***"
+            },
+            {
+              "name": "OAuthIssuer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "OAuthClientId",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Authenticated",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "LastAuthAt",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "AuthErrors",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "ExpiresAt",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            }
+          ],
+          "description": "Auth metadata \u2014 secrets are NEVER stored here."
+        },
+        {
+          "name": "Connection",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "URL",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "TimeoutMs",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 5000
+            },
+            {
+              "name": "VerifyTLS",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Proxy",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "RoundtripMs",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "LastConnect",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ReconnectCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Auth",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/Auth"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Network connection w/ auth + FSM."
+        },
+        {
+          "name": "PLCModule",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Catalog",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "FwVer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Type",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Status",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Fault",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "CommOK",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "DiagCode",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "SerialNum",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "One PLC backplane module."
+        },
+        {
+          "name": "PLCSlot",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "SlotNum",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "IOCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Type",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Module",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCModule"
+            }
+          ],
+          "description": "One slot in a PLC rack."
+        },
+        {
+          "name": "PLCRack",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "RackNum",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "CommOK",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "CPU",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCModule"
+            },
+            {
+              "name": "PS",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCModule"
+            },
+            {
+              "name": "Slots",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "S00",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S01",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S02",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S03",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S04",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S05",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S06",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                },
+                {
+                  "name": "S07",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Network/PLCSlot"
+                }
+              ]
+            }
+          ],
+          "description": "PLC rack \u2014 CPU + PS + 8 slots."
+        },
+        {
+          "name": "PLCDevice",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "IP",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Processor",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Family",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "ControlLogix"
+            },
+            {
+              "name": "CommOK",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "ScanRate",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 1000
+            },
+            {
+              "name": "Rack0",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCRack"
+            },
+            {
+              "name": "Rack1",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCRack"
+            },
+            {
+              "name": "Connection",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/Connection"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "PLC device with up to 2 racks."
+        },
+        {
+          "name": "OPCConn",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Server",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Endpoint",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Connected",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "ItemCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "ReadRate",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 1000
+            },
+            {
+              "name": "Mode",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "read"
+            },
+            {
+              "name": "Device",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/PLCDevice"
+            },
+            {
+              "name": "Connection",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/Connection"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            }
+          ],
+          "description": "OPC-UA connection."
+        },
+        {
+          "name": "GatewayNode",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "URL",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Role",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "independent"
+            },
+            {
+              "name": "Edition",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "Standard"
+            },
+            {
+              "name": "Version",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Hostname",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Uptime",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "CPU",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "Memory",
+              "tagType": "AtomicTag",
+              "valueType": "Float8",
+              "value": 0
+            },
+            {
+              "name": "TagCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "ProjectCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Connection",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/Connection"
+            },
+            {
+              "name": "OPC1",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/OPCConn"
+            },
+            {
+              "name": "OPC2",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Network/OPCConn"
+            },
+            {
+              "name": "Alarms",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AlarmGroup"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "HealthScript",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/ScriptHook"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "Ignition gateway node."
+        }
+      ]
+    },
+    {
+      "name": "HMI",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "Theme",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "dark-mono"
+            },
+            {
+              "name": "Colors",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "BgPrimary",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#060810"
+                },
+                {
+                  "name": "BgCard",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#0b0e16"
+                },
+                {
+                  "name": "FgPrimary",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#98a8c0"
+                },
+                {
+                  "name": "Accent",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#38b5f9"
+                },
+                {
+                  "name": "Ok",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#42e898"
+                },
+                {
+                  "name": "Warn",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#ffb84d"
+                },
+                {
+                  "name": "Err",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#ff4466"
+                },
+                {
+                  "name": "Lavender",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "#b496ff"
+                }
+              ]
+            },
+            {
+              "name": "Typography",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "FontFamily",
+                  "tagType": "AtomicTag",
+                  "valueType": "String",
+                  "value": "IBM Plex Mono"
+                },
+                {
+                  "name": "FontSizeBase",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 7
+                },
+                {
+                  "name": "FontSizeHeader",
+                  "tagType": "AtomicTag",
+                  "valueType": "Float8",
+                  "value": 10
+                }
+              ]
+            }
+          ],
+          "description": "UI theme tokens."
+        },
+        {
+          "name": "Button",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Icon",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Text",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Action",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tooltip",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Enabled",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Visible",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "ClickCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "LastClickTs",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Hotkey",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            }
+          ],
+          "description": "Generic button."
+        },
+        {
+          "name": "Notification",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Severity",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "info"
+            },
+            {
+              "name": "Message",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Ts",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "DismissAfterMs",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 5000
+            },
+            {
+              "name": "Acked",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "Source",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            }
+          ],
+          "description": "Toast / notification."
+        },
+        {
+          "name": "PanelHeader",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Emoji",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Title",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "StatusText",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "HeightPx",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 16
+            },
+            {
+              "name": "CollapseBtn",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Button"
+            },
+            {
+              "name": "MaxBtn",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Button"
+            },
+            {
+              "name": "RefreshBtn",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Button"
+            },
+            {
+              "name": "CloseBtn",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Button"
+            }
+          ],
+          "description": "Panel header bar."
+        },
+        {
+          "name": "Panel",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "GridArea",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Renderer",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "State",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "open"
+            },
+            {
+              "name": "LastRendered",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "RenderCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "Cmd",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Toggle",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Maximize",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Refresh",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                },
+                {
+                  "name": "Close",
+                  "tagType": "AtomicTag",
+                  "valueType": "Boolean",
+                  "value": false
+                }
+              ]
+            },
+            {
+              "name": "Header",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/PanelHeader"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "One panel in a mosaic."
+        },
+        {
+          "name": "Mosaic",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Cols",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Rows",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Areas",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "PanelCount",
+              "tagType": "AtomicTag",
+              "valueType": "Int4",
+              "value": 0
+            },
+            {
+              "name": "HasMaximized",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": false
+            },
+            {
+              "name": "FocusedPanel",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Panels",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "Chat",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                },
+                {
+                  "name": "Atomic",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                },
+                {
+                  "name": "Scan",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                },
+                {
+                  "name": "Console",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                },
+                {
+                  "name": "Trends",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                },
+                {
+                  "name": "Diag",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/HMI/Panel"
+                }
+              ]
+            }
+          ],
+          "description": "Grid of panels."
+        },
+        {
+          "name": "View",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "main"
+            },
+            {
+              "name": "Title",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Layout",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "mosaic"
+            },
+            {
+              "name": "Active",
+              "tagType": "AtomicTag",
+              "valueType": "Boolean",
+              "value": true
+            },
+            {
+              "name": "Mosaic",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Mosaic"
+            },
+            {
+              "name": "Theme",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/HMI/Theme"
+            }
+          ],
+          "description": "Top-level view."
+        }
+      ]
+    },
+    {
+      "name": "Site",
+      "tagType": "Folder",
+      "tags": [
+        {
+          "name": "ControlModule",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Device",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Devices/Valve"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "ISA-95 control module \u2014 single device."
+        },
+        {
+          "name": "EquipmentModule",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "ControlModules",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "CM1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/ControlModule"
+                },
+                {
+                  "name": "CM2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/ControlModule"
+                },
+                {
+                  "name": "CM3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/ControlModule"
+                },
+                {
+                  "name": "CM4",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/ControlModule"
+                }
+              ]
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "ISA-95 equipment module."
+        },
+        {
+          "name": "Unit",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Equipment",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "EM1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/EquipmentModule"
+                },
+                {
+                  "name": "EM2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/EquipmentModule"
+                }
+              ]
+            },
+            {
+              "name": "CurrentBatch",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Batch"
+            },
+            {
+              "name": "Sequencer",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Sequences/Sequencer"
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            },
+            {
+              "name": "FSM",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/State/FSM"
+            }
+          ],
+          "description": "ISA-95 unit (vessel-level)."
+        },
+        {
+          "name": "Cell",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Units",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "U1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Unit"
+                },
+                {
+                  "name": "U2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Unit"
+                },
+                {
+                  "name": "U3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Unit"
+                }
+              ]
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "ISA-95 process cell."
+        },
+        {
+          "name": "Area",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Tag",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Cells",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "C1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Cell"
+                },
+                {
+                  "name": "C2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Cell"
+                }
+              ]
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "ISA-95 area."
+        },
+        {
+          "name": "Site",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Code",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Location",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "TZ",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": "UTC"
+            },
+            {
+              "name": "Areas",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "A1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Area"
+                },
+                {
+                  "name": "A2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Area"
+                },
+                {
+                  "name": "A3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Area"
+                }
+              ]
+            },
+            {
+              "name": "Health",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/Health"
+            }
+          ],
+          "description": "ISA-95 site."
+        },
+        {
+          "name": "Enterprise",
+          "tagType": "UdtType",
+          "tags": [
+            {
+              "name": "Name",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Code",
+              "tagType": "AtomicTag",
+              "valueType": "String",
+              "value": ""
+            },
+            {
+              "name": "Sites",
+              "tagType": "Folder",
+              "tags": [
+                {
+                  "name": "S1",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Site"
+                },
+                {
+                  "name": "S2",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Site"
+                },
+                {
+                  "name": "S3",
+                  "tagType": "UdtInstance",
+                  "typeId": "Generic/Site/Site"
+                }
+              ]
+            },
+            {
+              "name": "Audit",
+              "tagType": "UdtInstance",
+              "typeId": "Generic/Primitives/AuditTrail"
+            }
+          ],
+          "description": "ISA-95 enterprise (top of pyramid)."
+        }
+      ]
+    }
+  ]
+}</textarea>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PAYLOAD = JSON.parse(document.getElementById('udtJson').value);
+
+const ICONS = {
+  Folder:    {cls:'k-folder', icon:'📁'},
+  UdtType:   {cls:'k-udt',    icon:'🧬'},
+  UdtInstance:{cls:'k-inst',  icon:'🪞'},
+  AtomicTag: {cls:'k-atom',   icon:'•'},
+};
+
+function renderNode(node, path=''){
+  const t = node.tagType || 'AtomicTag';
+  const ic = ICONS[t] || ICONS.AtomicTag;
+  const kids = node.tags || [];
+  const isLeaf = !kids.length;
+  const myPath = path ? path + '/' + (node.name||'?') : (node.name||'?');
+  let label = '';
+  if (t === 'AtomicTag') {
+    label = `<span class="${ic.cls}">${node.name}</span> <span class="tag t">${node.valueType||'?'}</span>`;
+    if (node.engUnit) label += ` <span class="dimmed">${node.engUnit}</span>`;
+    if (node.documentation) label += ` <span class="dimmed">${node.documentation.slice(0,60)}</span>`;
+  } else if (t === 'UdtInstance') {
+    label = `<span class="${ic.cls}">${node.name}</span> <span class="tag u">→ ${(node.typeId||'').split('/').pop()}</span>`;
+  } else if (t === 'UdtType') {
+    const params = node.parameters?.length ? ` <span class="dimmed">(${node.parameters.join(',')})</span>` : '';
+    label = `<span class="${ic.cls}">${node.name}</span> <span class="tag U">UDT</span>${params}`;
+    if (node.description) label += ` <span class="dimmed">${node.description.slice(0,80)}</span>`;
+  } else {
+    label = `<span class="${ic.cls}">${node.name}</span> <span class="tag f">folder · ${kids.length}</span>`;
+  }
+  const open = (t==='Folder' && (node.name==='Generic' || path==='Generic')) ? 'open' : '';
+  return `<div class="tn ${isLeaf?'leaf':''} ${open}" data-path="${myPath}" data-name="${(node.name||'').toLowerCase()}">
+    <div class="tl" onclick="this.parentElement.classList.toggle('open')">
+      <span class="arr">▶</span><span style="font-size:10px">${ic.icon}</span>${label}
+    </div>
+    ${kids.length ? `<div class="tc">${kids.map(k=>renderNode(k,myPath)).join('')}</div>` : ''}
+  </div>`;
+}
+
+function rebuild(){
+  document.getElementById('tree').innerHTML = renderNode(PAYLOAD);
+  updateVisCount();
+}
+
+function updateVisCount(){
+  const all = document.querySelectorAll('#tree .tn').length;
+  const hidden = document.querySelectorAll('#tree .tn[style*="display: none"]').length;
+  document.getElementById('visCount').textContent = (all-hidden) + ' / ' + all + ' nodes';
+}
+
+// ─── Controls ──────────────────────────────────────────────────────────────
+const ta = document.getElementById('udtJson');
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(t._tmr); t._tmr = setTimeout(()=>t.classList.remove('on'), 1600);
+}
+document.getElementById('copyBtn').onclick = async () => {
+  try { await navigator.clipboard.writeText(ta.value); toast('✓ JSON copied to clipboard'); }
+  catch (e) { ta.select(); document.execCommand('copy'); toast('✓ Copied (fallback)'); }
+};
+document.getElementById('downloadBtn').onclick = () => {
+  const blob = new Blob([ta.value], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'generic-udt-library.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('✓ Downloaded generic-udt-library.json');
+};
+document.getElementById('selectBtn').onclick = () => { ta.focus(); ta.select(); toast('✓ Selected — Ctrl+C'); };
+document.getElementById('expandBtn').onclick = () => {
+  document.querySelectorAll('#tree .tn:not(.leaf)').forEach(n=>n.classList.add('open'));
+};
+document.getElementById('collapseBtn').onclick = () => {
+  document.querySelectorAll('#tree .tn').forEach(n=>n.classList.remove('open'));
+  document.querySelectorAll('#tree > .tn').forEach(n=>n.classList.add('open'));
+};
+
+// ─── Search / filter ───────────────────────────────────────────────────────
+const searchIn = document.getElementById('searchIn');
+searchIn.addEventListener('input', () => {
+  const q = searchIn.value.trim().toLowerCase();
+  const all = document.querySelectorAll('#tree .tn');
+  if (!q) { all.forEach(n=>{n.style.display=''; n.classList.remove('match');}); updateVisCount(); return; }
+  // Show matching nodes + all their ancestors, hide siblings of non-matches
+  all.forEach(n=>n.style.display='none');
+  const matches = [];
+  all.forEach(n=>{
+    if ((n.dataset.name||'').includes(q)) {
+      matches.push(n);
+      n.classList.add('match','open');
+      // walk up
+      let p = n.parentElement;
+      while (p && p.id !== 'tree') {
+        if (p.classList && p.classList.contains('tn')) {
+          p.style.display='';
+          p.classList.add('open');
+        }
+        p = p.parentElement;
+      }
+      n.style.display='';
+      // show kids
+      n.querySelectorAll('.tn').forEach(k=>k.style.display='');
+    } else {
+      n.classList.remove('match');
+    }
+  });
+  updateVisCount();
+});
+
+rebuild();
+</script>
+</body>
+</html>
