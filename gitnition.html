@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GITNITION · Ignition Tag Browser & UDT Tools</title>
+<style>
+:root{
+  --bg:#0a0d14;--card:#10141d;--card2:#161b27;--b:#1f2638;--t:#cfd6e6;--t2:#7d89a3;
+  --ig:#38b5f9;--ok:#42e898;--err:#ff4466;--lav:#b496ff;--gold:#ffd166;--orng:#ff9f43;
+  --mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--t);font:11px/1.5 var(--mono);height:100%}
+.app{display:grid;grid-template-rows:auto auto 1fr auto;height:100vh}
+.hdr{display:flex;align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--b);background:var(--card)}
+.hdr h1{margin:0;font-size:13px;font-weight:600;color:var(--ig);letter-spacing:1.5px;display:flex;align-items:center;gap:6px}
+.hdr h1 .v{font-size:8px;background:var(--b);color:var(--gold);padding:1px 5px;border-radius:8px;letter-spacing:.5px}
+.hdr .conn{font-size:9px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.hdr .conn .dot{width:7px;height:7px;border-radius:50%;background:var(--err)}
+.hdr .conn.ok .dot{background:var(--ok)}
+.hdr input,.hdr select{font-family:inherit;font-size:10px;background:var(--card2);color:var(--t);border:1px solid var(--b);padding:3px 6px;border-radius:3px;outline:none}
+.hdr input:focus,.hdr select:focus{border-color:var(--ig)}
+.hdr .grow{flex:1}
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--b);padding:0 14px;overflow-x:auto}
+.tab{padding:7px 14px;font-size:10px;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.4px;text-transform:uppercase;font-weight:500}
+.tab:hover{color:var(--t)}
+.tab.on{color:var(--ig);border-bottom-color:var(--ig)}
+.body{overflow:hidden;display:flex}
+.pn{display:none;flex:1;overflow:hidden;flex-direction:column}
+.pn.on{display:flex}
+.foot{padding:5px 14px;background:var(--card);border-top:1px solid var(--b);font-size:9px;color:var(--t2);display:flex;align-items:center;gap:14px}
+.foot .grow{flex:1}
+
+button{font-family:inherit;font-size:10px;padding:4px 9px;background:var(--card2);border:1px solid var(--b);color:var(--t);cursor:pointer;border-radius:3px;transition:.12s}
+button:hover{border-color:var(--ig);color:var(--ig)}
+button.go{border-color:var(--ig);color:var(--ig)}
+button.go:hover{background:var(--ig);color:var(--bg)}
+button.warn{border-color:var(--orng);color:var(--orng)}
+button.warn:hover{background:var(--orng);color:var(--bg)}
+button.danger{border-color:var(--err);color:var(--err)}
+button.danger:hover{background:var(--err);color:var(--bg)}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+input,select,textarea{font-family:inherit;font-size:10px;background:var(--card2);color:var(--t);border:1px solid var(--b);padding:4px 7px;border-radius:3px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--ig)}
+textarea{resize:vertical;min-height:80px}
+
+/* === BROWSE === */
+.browse{flex:1;display:grid;grid-template-columns:340px 1fr;gap:1px;background:var(--b);overflow:hidden}
+.tree-wrap{background:var(--card);display:flex;flex-direction:column;overflow:hidden}
+.tree-tools{padding:6px 8px;border-bottom:1px solid var(--b);display:flex;gap:4px;align-items:center}
+.tree-tools input{flex:1}
+.tree{flex:1;overflow:auto;padding:4px}
+.tn{user-select:none}
+.tl{display:flex;align-items:center;gap:4px;padding:2px 5px;cursor:pointer;border-radius:2px}
+.tl:hover{background:var(--card2)}
+.tl.sel{background:var(--bg);border-left:2px solid var(--ig);padding-left:3px}
+.arr{color:var(--t2);font-size:8px;width:8px;display:inline-block;text-align:center;transition:.1s}
+.tn.open>.tl>.arr{transform:rotate(90deg)}
+.tn.leaf>.tl>.arr{visibility:hidden}
+.tc{display:none;margin-left:14px;border-left:1px solid var(--b);padding-left:5px}
+.tn.open>.tc{display:block}
+.tc.loading{display:block;color:var(--t2);font-style:italic;padding:4px}
+.icn{font-size:11px;width:14px;display:inline-block;text-align:center}
+.tt{color:var(--t2);font-size:9px;margin-left:4px}
+
+.detail{background:var(--card);overflow:auto;padding:14px}
+.detail h3{margin:0 0 8px 0;font-size:13px;color:var(--ig);font-weight:600;display:flex;align-items:center;gap:8px}
+.detail h3 .udt{font-size:9px;background:var(--b);color:var(--lav);padding:1px 6px;border-radius:8px}
+.detail .path{font-size:10px;color:var(--t2);margin-bottom:14px;word-break:break-all}
+.detail table{width:100%;border-collapse:collapse;margin-top:8px}
+.detail td,.detail th{padding:5px 8px;border-bottom:1px solid var(--b);text-align:left;font-size:10px;vertical-align:top}
+.detail th{color:var(--t2);font-weight:500;text-transform:uppercase;font-size:9px;letter-spacing:.4px}
+.detail .v-good{color:var(--ok)}
+.detail .v-bad{color:var(--err)}
+.detail .v-stale{color:var(--orng)}
+.actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+
+/* === WRITE === */
+.write-stage{flex:1;overflow:auto;padding:14px;background:var(--card)}
+.write-row{display:grid;grid-template-columns:2fr 100px 1fr 90px 28px;gap:6px;align-items:center;margin-bottom:5px;padding:5px;background:var(--card2);border-radius:3px}
+.write-row .pre{font-size:9px;color:var(--t2);padding:0 4px}
+
+/* === INSTANTIATE === */
+.inst{flex:1;display:grid;grid-template-columns:300px 1fr;gap:1px;background:var(--b);overflow:hidden}
+.inst-list{background:var(--card);overflow:auto;padding:4px}
+.inst-list .item{padding:5px 8px;cursor:pointer;border-radius:2px;border:1px solid transparent}
+.inst-list .item:hover{background:var(--card2)}
+.inst-list .item.sel{background:var(--card2);border-color:var(--ig)}
+.inst-list .item .name{color:var(--ig);font-weight:600;font-size:10.5px}
+.inst-list .item .path{font-size:9px;color:var(--t2)}
+.inst-form{background:var(--card);overflow:auto;padding:14px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;font-weight:500}
+
+/* === IMPORT / SETUP / HISTORY / ALARMS === */
+.import-stage,.setup-stage,.hist-stage,.alarm-stage{flex:1;overflow:auto;padding:14px;background:var(--card)}
+.setup-stage h3,.import-stage h3{margin:0 0 10px 0;font-size:13px;color:var(--ig)}
+.setup-stage section{margin-bottom:24px;padding:12px;background:var(--card2);border-radius:4px;border-left:3px solid var(--ig)}
+.setup-stage section h4{margin:0 0 8px 0;font-size:11px;color:var(--gold)}
+.setup-stage code{display:block;background:var(--bg);padding:10px;border-radius:3px;font-size:9.5px;white-space:pre-wrap;overflow:auto;max-height:300px;color:var(--ok);border:1px solid var(--b)}
+.alarm-stage table{width:100%;border-collapse:collapse;font-size:10px}
+.alarm-stage td,.alarm-stage th{padding:5px 8px;border-bottom:1px solid var(--b);text-align:left}
+.alarm-stage tr.high{background:rgba(255,68,102,.07)}
+.alarm-stage .pri-high{color:var(--err);font-weight:600}
+.alarm-stage .pri-med{color:var(--orng)}
+.alarm-stage .pri-low{color:var(--gold)}
+
+.toast{position:fixed;bottom:46px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--t);padding:8px 14px;font-size:10px;border-radius:4px;border-left:3px solid var(--ig);opacity:0;transition:.25s;pointer-events:none;z-index:99;max-width:80vw}
+.toast.on{opacity:1}
+.toast.err{border-left-color:var(--err);color:var(--err)}
+.toast.ok{border-left-color:var(--ok);color:var(--ok)}
+.empty{padding:40px;text-align:center;color:var(--t2);font-size:11px}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;font-size:10px;margin-bottom:4px}
+.kv .k{color:var(--t2)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100}
+.modal.on{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--ig);padding:18px;border-radius:6px;max-width:520px;width:90%}
+.modal h4{margin:0 0 10px 0;color:var(--gold);font-size:12px}
+.modal .row{display:flex;gap:6px;justify-content:flex-end;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>⚡ GITNITION <span class="v">v1.0</span></h1>
+    <span class="conn" id="conn"><span class="dot"></span><span id="connTxt">probing…</span></span>
+    <span class="grow"></span>
+    <label style="font-size:9px;color:var(--t2)">Provider:</label>
+    <select id="provider"><option>default</option></select>
+    <label style="font-size:9px;color:var(--t2)">Base URL:</label>
+    <input id="baseUrl" placeholder="auto-detect" style="width:240px">
+    <button id="reconnectBtn">🔌 Reconnect</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-pn="browse">🌳 Browse</div>
+    <div class="tab" data-pn="write">✏️ Write</div>
+    <div class="tab" data-pn="inst">🪞 Instantiate</div>
+    <div class="tab" data-pn="import">📥 Import UDTs</div>
+    <div class="tab" data-pn="hist">📊 History</div>
+    <div class="tab" data-pn="alarm">🚨 Alarms</div>
+    <div class="tab" data-pn="setup">⚙️ Setup</div>
+  </div>
+
+  <div class="body">
+    <!-- BROWSE -->
+    <div class="pn on" data-pn="browse">
+      <div class="browse">
+        <div class="tree-wrap">
+          <div class="tree-tools">
+            <input id="treeSearch" placeholder="filter visible tree...">
+            <button id="treeRefresh" title="Refresh root">⟳</button>
+          </div>
+          <div class="tree" id="tree"><div class="empty">connecting…</div></div>
+        </div>
+        <div class="detail" id="detail">
+          <div class="empty">← select a tag</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WRITE -->
+    <div class="pn" data-pn="write">
+      <div class="write-stage">
+        <h3 style="margin:0 0 10px 0;color:var(--ig)">✏️ Stage writes</h3>
+        <p style="color:var(--t2);font-size:10px">Add tags from the Browse tab (▶ Stage write button), or paste paths below. Writes are validated and require confirmation.</p>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <input id="addPath" placeholder="[default]Path/Tag" style="flex:1">
+          <button id="addBtn">+ Add</button>
+          <button id="clearWritesBtn">Clear all</button>
+        </div>
+        <div id="writeRows"></div>
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+          <button class="warn" id="previewWritesBtn">👁 Preview</button>
+          <button class="go" id="commitWritesBtn">⚡ Commit writes</button>
+          <span id="writeCount" style="color:var(--t2);font-size:10px"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTANTIATE -->
+    <div class="pn" data-pn="inst">
+      <div class="inst">
+        <div class="inst-list" id="udtList"><div class="empty">load UDTs ⟳</div></div>
+        <div class="inst-form" id="udtForm"><div class="empty">← pick a UDT</div></div>
+      </div>
+    </div>
+
+    <!-- IMPORT -->
+    <div class="pn" data-pn="import">
+      <div class="import-stage">
+        <h3>📥 Import UDT definitions</h3>
+        <p style="color:var(--t2);font-size:10px">Paste a UDT JSON (e.g. from <code>generic-udt-library.html</code>) below. POSTs to the gateway → <code>system.tag.configure</code> on <code>[provider]_types_</code>.</p>
+        <textarea id="importJson" placeholder='{&quot;name&quot;:&quot;Generic&quot;,&quot;tagType&quot;:&quot;Folder&quot;,&quot;tags&quot;:[...]}' style="height:300px;font-size:10px"></textarea>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+          <select id="importPolicy" style="width:160px">
+            <option value="o">Overwrite (replace existing)</option>
+            <option value="m" selected>Merge (preserve existing)</option>
+            <option value="a">Abort if exists</option>
+            <option value="i">Ignore conflicts</option>
+          </select>
+          <button class="warn" id="validateImportBtn">✓ Validate</button>
+          <button class="go" id="commitImportBtn">📥 Import to gateway</button>
+        </div>
+        <div id="importLog" style="margin-top:10px;font-size:10px;color:var(--t2)"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="pn" data-pn="hist">
+      <div class="hist-stage">
+        <h3 style="margin:0 0 10px 0;color:var(--ig)">📊 Tag history</h3>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <input id="histPath" placeholder="[default]Path/Tag" style="flex:1">
+          <select id="histRange" style="width:140px">
+            <option value="1">Last 1 hour</option>
+            <option value="6">Last 6 hours</option>
+            <option value="24" selected>Last 24 hours</option>
+            <option value="168">Last 7 days</option>
+            <option value="720">Last 30 days</option>
+          </select>
+          <button class="go" id="histBtn">Query</button>
+        </div>
+        <div id="histOut"><div class="empty">enter a tag path</div></div>
+      </div>
+    </div>
+
+    <!-- ALARMS -->
+    <div class="pn" data-pn="alarm">
+      <div class="alarm-stage">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <h3 style="margin:0;color:var(--ig)">🚨 Active alarms</h3>
+          <button id="alarmRefresh">⟳ Refresh</button>
+          <span class="grow" style="flex:1"></span>
+          <span style="font-size:10px;color:var(--t2)" id="alarmCount"></span>
+        </div>
+        <div id="alarmList"><div class="empty">click ⟳</div></div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="pn" data-pn="setup">
+      <div class="setup-stage">
+        <h3>⚙️ Setup — host this page on your gateway</h3>
+        <section>
+          <h4>1. Create a WebDev Python resource</h4>
+          <p>In Designer → Project Browser → WebDev → right-click → New Python Resource. Name it <code>gitnition</code>. Mount at path <code>gitnition</code>. Allow GET + POST.</p>
+        </section>
+        <section>
+          <h4>2. Paste the Python below into the resource</h4>
+          <p style="margin-bottom:8px"><button class="go" id="copyPyBtn">📋 Copy Python</button> &nbsp;<button id="dlPyBtn">⬇ Download .py</button></p>
+          <code id="pyCode"># GITNITION — Ignition WebDev Python resource
+# Drop this into a WebDev project as a Python resource at endpoint &quot;gitnition&quot;.
+# Then point your browser at:
+#   http://&lt;gateway&gt;:8088/system/webdev/&lt;projectName&gt;/gitnition
+#
+# Configure mount point in WebDev resource settings:
+#   - Mount path: gitnition
+#   - Allow GET, POST
+#   - Authentication: as required for your environment
+#
+# This file handles GET/POST for the same endpoint; route by request[&quot;servletRequest&quot;].getMethod()
+# and by query parameter &quot;op&quot; or by JSON body &quot;op&quot; key.
+
+import json, system
+
+INDEX_HTML = &quot;&quot;&quot;__INDEX_PLACEHOLDER__&quot;&quot;&quot;  # ← paste the HTML body here, or fetch from WebDev static
+
+def _json(obj, status=200):
+    return {&quot;json&quot;: obj, &quot;response&quot;: status}
+
+def _err(msg, status=400):
+    return _json({&quot;error&quot;: str(msg)}, status)
+
+def doGet(request, session):
+    p = request.get(&quot;params&quot;, {})
+    op = p.get(&quot;op&quot;, &quot;index&quot;)
+
+    if op == &quot;index&quot;:
+        # Serve the HTML page itself
+        return {&quot;html&quot;: INDEX_HTML}
+
+    if op == &quot;browse&quot;:
+        path = p.get(&quot;path&quot;, &quot;&quot;)
+        try:
+            results = system.tag.browse(path=path, filter={&quot;recursive&quot;: False})
+            out = []
+            for r in results.getResults():
+                out.append({
+                    &quot;name&quot;: str(r.get(&quot;name&quot;, &quot;&quot;)),
+                    &quot;fullPath&quot;: str(r.get(&quot;fullPath&quot;, &quot;&quot;)),
+                    &quot;tagType&quot;: str(r.get(&quot;tagType&quot;, &quot;&quot;)),
+                    &quot;dataType&quot;: str(r.get(&quot;dataType&quot;, &quot;&quot;)) if r.get(&quot;dataType&quot;) else None,
+                    &quot;hasChildren&quot;: bool(r.get(&quot;hasChildren&quot;, False)),
+                    &quot;udtType&quot;: str(r.get(&quot;typeId&quot;, &quot;&quot;)) if r.get(&quot;typeId&quot;) else None,
+                })
+            return _json({&quot;path&quot;: path, &quot;results&quot;: out, &quot;total&quot;: len(out)})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;read&quot;:
+        paths_csv = p.get(&quot;paths&quot;, &quot;&quot;)
+        if not paths_csv:
+            return _err(&quot;paths required&quot;)
+        paths = [x for x in paths_csv.split(&quot;,&quot;) if x]
+        try:
+            qvs = system.tag.readBlocking(paths)
+            out = []
+            for path, qv in zip(paths, qvs):
+                out.append({
+                    &quot;path&quot;: path,
+                    &quot;value&quot;: qv.value,
+                    &quot;quality&quot;: str(qv.quality),
+                    &quot;timestamp&quot;: str(qv.timestamp),
+                    &quot;good&quot;: qv.quality.isGood(),
+                })
+            return _json({&quot;results&quot;: out})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;udts&quot;:
+        provider = p.get(&quot;provider&quot;, &quot;default&quot;)
+        try:
+            results = system.tag.browse(path=&quot;[%s]_types_&quot; % provider,
+                                         filter={&quot;tagType&quot;: &quot;UdtType&quot;, &quot;recursive&quot;: True})
+            out = []
+            for r in results.getResults():
+                out.append({&quot;name&quot;: str(r.get(&quot;name&quot;, &quot;&quot;)),
+                            &quot;fullPath&quot;: str(r.get(&quot;fullPath&quot;, &quot;&quot;)),
+                            &quot;typeId&quot;: str(r.get(&quot;fullPath&quot;, &quot;&quot;)).replace(&quot;[%s]_types_/&quot; % provider, &quot;&quot;)})
+            return _json({&quot;udts&quot;: out, &quot;total&quot;: len(out)})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;history&quot;:
+        path = p.get(&quot;path&quot;, &quot;&quot;)
+        if not path: return _err(&quot;path required&quot;)
+        range_h = int(p.get(&quot;hours&quot;, &quot;1&quot;))
+        try:
+            ds = system.tag.queryTagHistory(
+                paths=[path],
+                startDate=system.date.addHours(system.date.now(), -range_h),
+                endDate=system.date.now(),
+                returnSize=200,
+                aggregationMode=&quot;LastValue&quot;,
+                returnFormat=&quot;Wide&quot;,
+            )
+            rows = []
+            for r in range(ds.rowCount):
+                rows.append({
+                    &quot;ts&quot;: str(ds.getValueAt(r, 0)),
+                    &quot;v&quot;:  ds.getValueAt(r, 1),
+                })
+            return _json({&quot;path&quot;: path, &quot;rows&quot;: rows})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;alarms&quot;:
+        try:
+            alarms = system.alarm.queryStatus(state=[&quot;ActiveUnacked&quot;, &quot;ActiveAcked&quot;])
+            out = []
+            for a in alarms:
+                out.append({
+                    &quot;uuid&quot;: str(a.getId()),
+                    &quot;source&quot;: str(a.getSource()),
+                    &quot;displayPath&quot;: str(a.getDisplayPath()),
+                    &quot;priority&quot;: str(a.getPriority()),
+                    &quot;state&quot;: str(a.getState()),
+                    &quot;name&quot;: str(a.getName()),
+                    &quot;active&quot;: a.isActive(),
+                    &quot;acked&quot;: a.isAcked(),
+                })
+            return _json({&quot;alarms&quot;: out, &quot;total&quot;: len(out)})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;version&quot;:
+        return _json({&quot;version&quot;: str(system.util.getGatewayInfo() if hasattr(system.util, &quot;getGatewayInfo&quot;) else &quot;unknown&quot;),
+                      &quot;gitnition&quot;: &quot;1.0&quot;})
+
+    return _err(&quot;unknown op: %s&quot; % op, 404)
+
+
+def doPost(request, session):
+    body = {}
+    try:
+        body = json.loads(request.get(&quot;postData&quot;, &quot;&quot;) or &quot;{}&quot;)
+    except Exception as e:
+        return _err(&quot;bad JSON: %s&quot; % e)
+    op = body.get(&quot;op&quot;, &quot;&quot;)
+
+    if op == &quot;write&quot;:
+        # body: { op:&quot;write&quot;, writes:[{path, value},...] }
+        writes = body.get(&quot;writes&quot;, [])
+        if not writes: return _err(&quot;writes required&quot;)
+        try:
+            paths = [w[&quot;path&quot;] for w in writes]
+            values = [w[&quot;value&quot;] for w in writes]
+            qcs = system.tag.writeBlocking(paths, values)
+            out = []
+            for w, qc in zip(writes, qcs):
+                out.append({&quot;path&quot;: w[&quot;path&quot;], &quot;ok&quot;: qc.isGood(), &quot;quality&quot;: str(qc)})
+            return _json({&quot;results&quot;: out})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;instantiate&quot;:
+        # body: { op:&quot;instantiate&quot;, typeId:&quot;Generic/Devices/Pump&quot;, path:&quot;My/Folder/P-101&quot;, params:{...} }
+        typeId = body.get(&quot;typeId&quot;, &quot;&quot;)
+        path = body.get(&quot;path&quot;, &quot;&quot;)
+        params = body.get(&quot;params&quot;, {})
+        provider = body.get(&quot;provider&quot;, &quot;default&quot;)
+        if not typeId or not path: return _err(&quot;typeId+path required&quot;)
+        try:
+            collisionPolicy = body.get(&quot;collisionPolicy&quot;, &quot;a&quot;)  # a=abort, o=overwrite, m=merge, i=ignore
+            tag = {
+                &quot;name&quot;: path.split(&quot;/&quot;)[-1],
+                &quot;tagType&quot;: &quot;UdtInstance&quot;,
+                &quot;typeId&quot;: typeId,
+                &quot;parameters&quot;: {k: {&quot;value&quot;: v} for k, v in params.items()},
+            }
+            parent = &quot;[%s]&quot; % provider + &quot;/&quot;.join(path.split(&quot;/&quot;)[:-1])
+            r = system.tag.configure(parent, [tag], collisionPolicy)
+            return _json({&quot;results&quot;: [str(x) for x in r], &quot;createdAt&quot;: parent + &quot;/&quot; + tag[&quot;name&quot;]})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;import&quot;:
+        # body: { op:&quot;import&quot;, json: &lt;udt-defs-json&gt;, provider:&quot;default&quot; }
+        provider = body.get(&quot;provider&quot;, &quot;default&quot;)
+        udt_json = body.get(&quot;json&quot;, None)
+        if not udt_json: return _err(&quot;json required&quot;)
+        try:
+            r = system.tag.configure(&quot;[%s]_types_&quot; % provider, [udt_json], &quot;o&quot;)
+            return _json({&quot;results&quot;: [str(x) for x in r], &quot;imported&quot;: True})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;ack_alarm&quot;:
+        uuids = body.get(&quot;uuids&quot;, [])
+        notes = body.get(&quot;notes&quot;, &quot;ack from gitnition&quot;)
+        try:
+            system.alarm.acknowledge(uuids, notes)
+            return _json({&quot;acked&quot;: len(uuids)})
+        except Exception as e:
+            return _err(e)
+
+    if op == &quot;shelve_alarm&quot;:
+        uuids = body.get(&quot;uuids&quot;, [])
+        secs = int(body.get(&quot;seconds&quot;, 3600))
+        try:
+            system.alarm.shelve(uuids, secs)
+            return _json({&quot;shelved&quot;: len(uuids), &quot;seconds&quot;: secs})
+        except Exception as e:
+            return _err(e)
+
+    return _err(&quot;unknown op: %s&quot; % op, 404)</code>
+        </section>
+        <section>
+          <h4>3. Save the index HTML</h4>
+          <p>The Python references <code>INDEX_HTML</code>. You can either (a) paste the entire HTML body of <em>this</em> page into that variable, or (b) host the HTML separately as a WebDev static resource and have the Python redirect to it. Easiest path is option (b) — drop this very file into <code>data/projects/&lt;projectName&gt;/webdev/&lt;mountPath&gt;</code> as a static file.</p>
+        </section>
+        <section>
+          <h4>4. Hit the endpoint</h4>
+          <p><code style="display:inline;padding:2px 6px;background:var(--bg);color:var(--ok)">http://&lt;gateway&gt;:8088/system/webdev/&lt;projectName&gt;/gitnition</code></p>
+          <p>The page auto-detects same-origin and starts talking. If you load it from elsewhere, set the Base URL in the header bar.</p>
+        </section>
+        <section>
+          <h4>Status & permissions</h4>
+          <div class="kv"><div class="k">Auth</div><div>Browser session cookie if same-origin. Otherwise basic/apikey/bearer prompt.</div></div>
+          <div class="kv"><div class="k">Network</div><div>Same-origin = no CORS. Cross-origin needs <code>Access-Control-Allow-Origin</code> on the gateway.</div></div>
+          <div class="kv"><div class="k">Project scope</div><div>WebDev runs in the project context — only tag providers visible to that project are reachable.</div></div>
+          <div class="kv"><div class="k">Roles</div><div>Recommend role-gating the WebDev resource: read-only role for browse/read/history, admin role for write/instantiate/import.</div></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>📍 <span id="footPath">—</span></span>
+    <span class="grow" style="flex:1"></span>
+    <span id="footStats">—</span>
+    <span style="color:var(--t2)">| GITNITION · single-file</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="box"><h4 id="modalTitle"></h4><div id="modalBody"></div><div class="row"><button id="modalCancel">Cancel</button><button class="go" id="modalOK">Confirm</button></div></div></div>
+
+<script>
+// ═══ GITNITION client ═══════════════════════════════════════════════════════
+// Talks to a gateway that hosts the corresponding Python resource.
+// Auto-detects same-origin; falls back to user-supplied Base URL.
+
+const $ = id => document.getElementById(id);
+const state = {
+  base: '',           // base URL of gateway endpoint
+  ready: false,
+  provider: 'default',
+  selectedPath: '',
+  writes: new Map(),  // path → {value, type, originalValue}
+  udts: [],
+  selectedUdt: null,
+  rollback: new Map(),// path → {value, ts} for 5-min undo window
+};
+
+function toast(msg, kind=''){
+  const t = $('toast'); t.textContent = msg; t.className = 'toast on '+kind;
+  clearTimeout(t._tmr); t._tmr = setTimeout(()=>t.classList.remove('on'), 2400);
+}
+
+function setConn(ok, txt){
+  $('conn').className = 'conn' + (ok?' ok':'');
+  $('connTxt').textContent = txt;
+  state.ready = ok;
+}
+
+// ─── Endpoint detection ────────────────────────────────────────────────────
+function detectBase(){
+  const url = window.location.href;
+  // Same-origin Ignition WebDev: /system/webdev/<project>/<mount>
+  const m = url.match(/(.*?\/system\/webdev\/[^/]+\/[^/?#]+)/);
+  if (m) return m[1];
+  // Otherwise empty — user must supply
+  return '';
+}
+
+async function api(op, params={}, opts={}){
+  const base = state.base;
+  if (!base) throw new Error('no base URL — set it in the header');
+  const isPost = opts.method === 'POST';
+  const url = isPost ? base : base + '?op=' + encodeURIComponent(op) + '&' + new URLSearchParams(params).toString();
+  const init = {
+    method: isPost ? 'POST' : 'GET',
+    credentials: 'same-origin',
+    headers: { 'Accept':'application/json' },
+  };
+  if (isPost){
+    init.headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify({op, ...params});
+  }
+  const r = await fetch(url, init);
+  if (!r.ok) throw new Error('HTTP '+r.status+' '+r.statusText);
+  const ct = r.headers.get('content-type')||'';
+  if (!ct.includes('json')) throw new Error('non-JSON response ('+ct+') — check WebDev resource is configured');
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+
+async function probe(){
+  setConn(false, 'probing…');
+  try {
+    state.base = $('baseUrl').value || detectBase();
+    if (!state.base){ setConn(false, 'no base URL set'); return; }
+    const r = await api('version');
+    setConn(true, 'connected · ' + (r.version||'unknown').toString().slice(0,40));
+    loadRoot();
+  } catch(e){
+    setConn(false, '✗ '+e.message);
+  }
+}
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.pn').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.querySelector('.pn[data-pn="'+t.dataset.pn+'"]').classList.add('on');
+    if (t.dataset.pn==='inst' && !state.udts.length) loadUDTs();
+    if (t.dataset.pn==='alarm') loadAlarms();
+  });
+});
+
+// ─── Browse ────────────────────────────────────────────────────────────────
+async function loadRoot(){
+  const tree = $('tree');
+  tree.innerHTML = '<div class="empty">loading providers…</div>';
+  try {
+    const r = await api('browse', {path: ''});
+    tree.innerHTML = '';
+    if (!r.results || !r.results.length){
+      tree.innerHTML = '<div class="empty">no tag providers visible</div>'; return;
+    }
+    // First level is providers — wrap with [name] notation
+    for (const item of r.results){
+      const p = item.fullPath || ('['+item.name+']');
+      tree.appendChild(makeTreeNode({...item, fullPath: p, displayName: '['+item.name+']', icon: '🏛'}));
+    }
+  } catch(e){
+    tree.innerHTML = '<div class="empty err">'+e.message+'</div>';
+  }
+}
+
+function makeTreeNode(item){
+  const div = document.createElement('div');
+  div.className = 'tn' + (item.hasChildren ? '' : ' leaf');
+  div.dataset.path = item.fullPath;
+  div.dataset.name = (item.name||'').toLowerCase();
+  const tl = document.createElement('div');
+  tl.className = 'tl';
+  const icon = item.icon || ({Folder:'📁', UdtInstance:'🪞', UdtType:'🧬', AtomicTag:'•'}[item.tagType] || '?');
+  tl.innerHTML = '<span class="arr">▶</span><span class="icn">'+icon+'</span><span>'+(item.displayName||item.name)+'</span>'
+    + (item.dataType ? '<span class="tt">'+item.dataType+'</span>' : '')
+    + (item.udtType ? '<span class="tt" style="color:var(--lav)">'+item.udtType.split('/').pop()+'</span>' : '');
+  tl.addEventListener('click', async (ev)=>{
+    document.querySelectorAll('.tl.sel').forEach(x=>x.classList.remove('sel'));
+    tl.classList.add('sel');
+    state.selectedPath = item.fullPath;
+    $('footPath').textContent = item.fullPath;
+    showDetail(item);
+    if (item.hasChildren && !div.classList.contains('open') && !div._loaded){
+      await loadChildren(div, item.fullPath);
+    }
+    div.classList.toggle('open');
+  });
+  div.appendChild(tl);
+  return div;
+}
+
+async function loadChildren(parentNode, path){
+  const tc = document.createElement('div');
+  tc.className = 'tc loading';
+  tc.textContent = 'loading…';
+  parentNode.appendChild(tc);
+  try {
+    const r = await api('browse', {path});
+    tc.classList.remove('loading');
+    tc.innerHTML = '';
+    parentNode._loaded = true;
+    for (const item of (r.results||[])){
+      tc.appendChild(makeTreeNode(item));
+    }
+    if (!r.results || !r.results.length) tc.innerHTML = '<div class="tt" style="padding:4px 8px">empty</div>';
+  } catch(e){
+    tc.innerHTML = '<div class="tt" style="color:var(--err);padding:4px 8px">'+e.message+'</div>';
+  }
+}
+
+async function showDetail(item){
+  const d = $('detail');
+  d.innerHTML = '<h3>'+item.name+(item.udtType?' <span class="udt">'+item.udtType.split('/').pop()+'</span>':'')+'</h3>'
+    + '<div class="path">'+item.fullPath+'</div>'
+    + '<div id="vbox" class="empty">reading value…</div>'
+    + '<div class="actions" id="acts"></div>';
+  const acts = $('acts');
+  // Action buttons
+  const btnRead = mkBtn('🔄 Read', 'go', ()=>readSelected(item));
+  const btnWrite = mkBtn('✏️ Stage write', '', ()=>{stageWrite(item.fullPath, ''); switchTab('write');});
+  const btnHist = mkBtn('📊 History', '', ()=>{$('histPath').value=item.fullPath; switchTab('hist'); $('histBtn').click();});
+  acts.append(btnRead, btnWrite, btnHist);
+  if (item.tagType==='AtomicTag' || item.tagType==='UdtInstance'){
+    readSelected(item);
+  }
+}
+
+function mkBtn(text, cls, fn){ const b=document.createElement('button'); b.textContent=text; if(cls)b.className=cls; b.onclick=fn; return b; }
+
+async function readSelected(item){
+  const vbox = $('vbox'); vbox.className=''; vbox.innerHTML = '<div class="empty">reading…</div>';
+  try {
+    const r = await api('read', {paths: item.fullPath});
+    const row = (r.results||[])[0];
+    if (!row){ vbox.innerHTML = '<div class="empty">no value</div>'; return; }
+    const cls = row.good ? 'v-good' : 'v-bad';
+    vbox.innerHTML = '<table>'
+      + '<tr><th>Value</th><td class="'+cls+'" style="font-size:13px;font-weight:600">'+JSON.stringify(row.value)+'</td></tr>'
+      + '<tr><th>Quality</th><td class="'+cls+'">'+row.quality+'</td></tr>'
+      + '<tr><th>Timestamp</th><td>'+row.timestamp+'</td></tr>'
+      + '<tr><th>Path</th><td style="word-break:break-all">'+row.path+'</td></tr>'
+      + '</table>';
+  } catch(e){
+    vbox.innerHTML = '<div class="empty err" style="color:var(--err)">'+e.message+'</div>';
+  }
+}
+
+$('treeRefresh').onclick = loadRoot;
+$('treeSearch').addEventListener('input', e=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#tree .tn').forEach(n=>{
+    if (!q){ n.style.display=''; return; }
+    n.style.display = (n.dataset.name||'').includes(q) ? '' : 'none';
+    if ((n.dataset.name||'').includes(q)){
+      let p = n.parentElement;
+      while (p && p.id !== 'tree'){ if (p.classList?.contains('tn')){ p.style.display=''; p.classList.add('open'); } p = p.parentElement; }
+    }
+  });
+});
+
+// ─── Writes ────────────────────────────────────────────────────────────────
+function stageWrite(path, value){
+  state.writes.set(path, {value, type: guessType(value)});
+  renderWrites();
+  toast('staged: '+path);
+}
+
+function guessType(v){
+  if (v === '' || v == null) return 'String';
+  if (v === 'true' || v === 'false') return 'Boolean';
+  if (/^-?\d+$/.test(v)) return 'Int4';
+  if (/^-?\d*\.\d+$/.test(v)) return 'Float8';
+  return 'String';
+}
+
+function coerce(v, type){
+  if (type==='Boolean') return v==='true' || v===true;
+  if (type==='Int4' || type==='Int8') return parseInt(v, 10);
+  if (type==='Float8') return parseFloat(v);
+  return String(v);
+}
+
+function renderWrites(){
+  const wr = $('writeRows'); wr.innerHTML = '';
+  $('writeCount').textContent = state.writes.size + ' staged';
+  for (const [path, w] of state.writes.entries()){
+    const row = document.createElement('div');
+    row.className = 'write-row';
+    row.innerHTML =
+        '<div class="pre" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+path+'">'+path+'</div>'
+      + '<select data-path="'+path+'" data-k="type">'
+      +   ['Boolean','Int4','Int8','Float8','String'].map(t=>'<option '+(t===w.type?'selected':'')+'>'+t+'</option>').join('')
+      + '</select>'
+      + '<input data-path="'+path+'" data-k="value" value="'+(w.value??'').toString().replace(/"/g,'&quot;')+'">'
+      + '<button data-path="'+path+'" data-act="read">🔄 Read</button>'
+      + '<button data-path="'+path+'" data-act="del">×</button>';
+    wr.appendChild(row);
+  }
+  wr.querySelectorAll('input,select').forEach(el=>{
+    el.oninput = ()=>{ const w = state.writes.get(el.dataset.path); if(!w)return; w[el.dataset.k] = el.value; };
+  });
+  wr.querySelectorAll('[data-act="del"]').forEach(b=>b.onclick=()=>{state.writes.delete(b.dataset.path); renderWrites();});
+  wr.querySelectorAll('[data-act="read"]').forEach(b=>b.onclick=async()=>{
+    try {
+      const r = await api('read',{paths:b.dataset.path});
+      const v = r.results?.[0]?.value; const w = state.writes.get(b.dataset.path);
+      if (w){ w.value = String(v); renderWrites(); toast('current = '+v); }
+    } catch(e){ toast(e.message,'err'); }
+  });
+}
+
+$('addBtn').onclick = ()=>{ const p = $('addPath').value.trim(); if(!p)return; stageWrite(p,''); $('addPath').value=''; };
+$('clearWritesBtn').onclick = ()=>{ state.writes.clear(); renderWrites(); };
+$('previewWritesBtn').onclick = async ()=>{
+  if (!state.writes.size){ toast('no writes staged'); return; }
+  const paths = [...state.writes.keys()].join(',');
+  try {
+    const r = await api('read', {paths});
+    const lines = (r.results||[]).map(row=>{
+      const w = state.writes.get(row.path);
+      return row.path+'\n   current: '+JSON.stringify(row.value)+'\n   new:     '+(w?coerce(w.value,w.type):'?');
+    });
+    confirm_('Preview writes', '<pre style="max-height:300px;overflow:auto;font-size:9.5px">'+lines.join('\n\n')+'</pre>', commitWrites);
+  } catch(e){ toast(e.message,'err'); }
+};
+$('commitWritesBtn').onclick = ()=>{
+  if (!state.writes.size){ toast('no writes staged'); return; }
+  confirm_('Commit '+state.writes.size+' writes?', '<p>This will execute writes on the gateway. Bad values will return errors per-tag.</p>', commitWrites);
+};
+
+async function commitWrites(){
+  const writes = [...state.writes.entries()].map(([path,w])=>({path, value: coerce(w.value, w.type)}));
+  try {
+    // Capture rollback values first
+    const r0 = await api('read', {paths: writes.map(w=>w.path).join(',')});
+    for (const row of (r0.results||[])) state.rollback.set(row.path, {value: row.value, ts: Date.now()});
+    setTimeout(()=>{for(const [p,v] of state.rollback) if (Date.now()-v.ts > 300000) state.rollback.delete(p);}, 300000);
+    // Commit
+    const r = await api('write', {writes}, {method:'POST'});
+    const ok = (r.results||[]).filter(x=>x.ok).length;
+    const fail = (r.results||[]).length - ok;
+    toast('✓ '+ok+' written, '+fail+' failed', fail?'err':'ok');
+    state.writes.clear(); renderWrites();
+  } catch(e){ toast(e.message,'err'); }
+}
+
+// ─── UDTs / instantiate ────────────────────────────────────────────────────
+async function loadUDTs(){
+  $('udtList').innerHTML = '<div class="empty">loading UDTs…</div>';
+  try {
+    const r = await api('udts', {provider: $('provider').value});
+    state.udts = r.udts||[];
+    if (!state.udts.length){ $('udtList').innerHTML = '<div class="empty">no UDTs in [_types_]</div>'; return; }
+    $('udtList').innerHTML = state.udts.map(u=>'<div class="item" data-id="'+u.typeId+'"><div class="name">'+u.name+'</div><div class="path">'+u.typeId+'</div></div>').join('');
+    $('udtList').querySelectorAll('.item').forEach(it=>{
+      it.onclick = ()=>{
+        document.querySelectorAll('#udtList .item').forEach(x=>x.classList.remove('sel'));
+        it.classList.add('sel');
+        state.selectedUdt = state.udts.find(u=>u.typeId===it.dataset.id);
+        renderUdtForm();
+      };
+    });
+  } catch(e){ $('udtList').innerHTML = '<div class="empty err" style="color:var(--err)">'+e.message+'</div>'; }
+}
+
+function renderUdtForm(){
+  const u = state.selectedUdt; if (!u) return;
+  $('udtForm').innerHTML =
+      '<h3 style="margin:0 0 12px 0;color:var(--ig)">🪞 Instantiate '+u.name+'</h3>'
+    + '<div class="path" style="font-size:10px;color:var(--t2);margin-bottom:14px">typeId: '+u.typeId+'</div>'
+    + '<div class="field"><label>Target path (under provider)</label><input id="instPath" placeholder="MyFolder/P-101"></div>'
+    + '<div class="field"><label>Parameters (JSON object — optional)</label><textarea id="instParams" placeholder=\'{&quot;DeviceId&quot;:&quot;P-101&quot;}\' style="height:80px"></textarea></div>'
+    + '<div class="field"><label>Collision policy</label><select id="instPolicy"><option value="a">Abort if exists</option><option value="o">Overwrite</option><option value="m">Merge</option><option value="i">Ignore conflicts</option></select></div>'
+    + '<div style="display:flex;gap:8px"><button class="go" id="instGo">⚡ Create instance</button><button id="instCopy">📋 Copy as JSON</button></div>'
+    + '<div id="instOut" style="margin-top:12px;font-size:10px;color:var(--t2)"></div>';
+  $('instGo').onclick = doInstantiate;
+  $('instCopy').onclick = ()=>{
+    const path = $('instPath').value.trim(); let params = {};
+    try { params = JSON.parse($('instParams').value||'{}'); } catch(e){}
+    const obj = {op:'instantiate', typeId:u.typeId, path, params, provider:$('provider').value, collisionPolicy:$('instPolicy').value};
+    navigator.clipboard.writeText(JSON.stringify(obj,null,2)).then(()=>toast('JSON copied','ok'));
+  };
+}
+
+async function doInstantiate(){
+  const u = state.selectedUdt; if (!u) return;
+  const path = $('instPath').value.trim();
+  if (!path){ toast('path required','err'); return; }
+  let params = {};
+  try { params = JSON.parse($('instParams').value||'{}'); }
+  catch(e){ toast('params: bad JSON — '+e.message,'err'); return; }
+  try {
+    const r = await api('instantiate', {typeId: u.typeId, path, params, provider:$('provider').value, collisionPolicy:$('instPolicy').value}, {method:'POST'});
+    $('instOut').innerHTML = '<span style="color:var(--ok)">✓ created at: '+r.createdAt+'</span><br><pre style="font-size:9px">'+(r.results||[]).join('\n')+'</pre>';
+    toast('✓ instantiated','ok');
+  } catch(e){ $('instOut').innerHTML = '<span style="color:var(--err)">✗ '+e.message+'</span>'; toast(e.message,'err'); }
+}
+
+// ─── Import ────────────────────────────────────────────────────────────────
+$('validateImportBtn').onclick = ()=>{
+  const txt = $('importJson').value.trim(); if(!txt){ $('importLog').innerHTML='<span style="color:var(--err)">empty</span>';return; }
+  try {
+    const j = JSON.parse(txt);
+    let udts=0, atoms=0;
+    function walk(n){ if(n.tagType==='UdtType')udts++; if(n.tagType==='AtomicTag')atoms++; (n.tags||[]).forEach(walk); }
+    walk(j);
+    $('importLog').innerHTML = '<span style="color:var(--ok)">✓ valid · '+udts+' UDTs, '+atoms+' atomic fields, root: '+(j.name||'?')+'</span>';
+  } catch(e){ $('importLog').innerHTML = '<span style="color:var(--err)">✗ '+e.message+'</span>'; }
+};
+$('commitImportBtn').onclick = async ()=>{
+  const txt = $('importJson').value.trim(); if(!txt) return;
+  let j; try { j = JSON.parse(txt); } catch(e){ toast('bad JSON','err'); return; }
+  try {
+    const r = await api('import', {json:j, provider:$('provider').value, policy:$('importPolicy').value}, {method:'POST'});
+    $('importLog').innerHTML = '<span style="color:var(--ok)">✓ imported · '+(r.results||[]).join(', ')+'</span>';
+    toast('✓ imported','ok');
+  } catch(e){ $('importLog').innerHTML = '<span style="color:var(--err)">✗ '+e.message+'</span>'; toast(e.message,'err'); }
+};
+
+// ─── History ───────────────────────────────────────────────────────────────
+$('histBtn').onclick = async ()=>{
+  const path = $('histPath').value.trim(); if(!path)return;
+  $('histOut').innerHTML = '<div class="empty">querying…</div>';
+  try {
+    const r = await api('history', {path, hours: $('histRange').value});
+    if (!r.rows || !r.rows.length){ $('histOut').innerHTML='<div class="empty">no history (tag not historized?)</div>'; return; }
+    const max = r.rows.reduce((m,x)=>Math.max(m,Number(x.v)||0), 0) || 1;
+    const min = r.rows.reduce((m,x)=>Math.min(m,Number(x.v)||0), max);
+    $('histOut').innerHTML = '<div style="font-size:10px;color:var(--t2);margin-bottom:8px">'+r.rows.length+' samples · min='+min+' max='+max+'</div>'
+      + '<table style="width:100%;font-size:10px"><tr><th style="text-align:left;color:var(--t2)">Timestamp</th><th style="text-align:right;color:var(--t2)">Value</th></tr>'
+      + r.rows.map(row=>'<tr><td>'+row.ts+'</td><td style="text-align:right;color:var(--ok)">'+row.v+'</td></tr>').join('')
+      + '</table>';
+  } catch(e){ $('histOut').innerHTML = '<div class="empty err" style="color:var(--err)">'+e.message+'</div>'; }
+};
+
+// ─── Alarms ────────────────────────────────────────────────────────────────
+async function loadAlarms(){
+  $('alarmList').innerHTML = '<div class="empty">querying…</div>';
+  try {
+    const r = await api('alarms');
+    const rows = r.alarms||[];
+    $('alarmCount').textContent = rows.length+' alarms';
+    if (!rows.length){ $('alarmList').innerHTML='<div class="empty">no active alarms</div>'; return; }
+    $('alarmList').innerHTML = '<table>'
+      + '<tr><th>Pri</th><th>Source</th><th>Name</th><th>State</th><th>Active</th><th>Acked</th><th></th></tr>'
+      + rows.map(a=>{
+        const pri = a.priority || 'Medium';
+        const cls = pri==='High'||pri==='Critical' ? 'pri-high' : pri==='Medium' ? 'pri-med' : 'pri-low';
+        const rowCls = pri==='High'||pri==='Critical' ? 'high' : '';
+        return '<tr class="'+rowCls+'"><td class="'+cls+'">'+pri+'</td><td>'+a.source+'</td><td>'+a.name+'</td><td>'+a.state+'</td><td>'+a.active+'</td><td>'+a.acked+'</td><td>'
+          + (!a.acked ? '<button data-uuid="'+a.uuid+'" data-act="ack">Ack</button>' : '')
+          + ' <button data-uuid="'+a.uuid+'" data-act="shelve">Shelve 1h</button></td></tr>';
+      }).join('')
+      + '</table>';
+    $('alarmList').querySelectorAll('button[data-uuid]').forEach(b=>{
+      b.onclick = async ()=>{
+        try {
+          if (b.dataset.act==='ack') await api('ack_alarm',{uuids:[b.dataset.uuid]},{method:'POST'});
+          else await api('shelve_alarm',{uuids:[b.dataset.uuid], seconds:3600},{method:'POST'});
+          toast('✓ '+b.dataset.act,'ok'); loadAlarms();
+        } catch(e){ toast(e.message,'err'); }
+      };
+    });
+  } catch(e){ $('alarmList').innerHTML = '<div class="empty err" style="color:var(--err)">'+e.message+'</div>'; }
+}
+$('alarmRefresh').onclick = loadAlarms;
+
+// ─── Setup ─────────────────────────────────────────────────────────────────
+$('copyPyBtn').onclick = ()=>{
+  navigator.clipboard.writeText($('pyCode').textContent).then(()=>toast('✓ Python copied','ok')).catch(()=>toast('copy failed','err'));
+};
+$('dlPyBtn').onclick = ()=>{
+  const blob = new Blob([$('pyCode').textContent], {type:'text/x-python'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'gitnition.py'; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+};
+
+// ─── Modal ────────────────────────────────────────────────────────────────
+let _modalCb = null;
+function confirm_(title, bodyHtml, cb){
+  $('modalTitle').textContent = title; $('modalBody').innerHTML = bodyHtml;
+  _modalCb = cb; $('modal').classList.add('on');
+}
+$('modalCancel').onclick = ()=>{ $('modal').classList.remove('on'); _modalCb = null; };
+$('modalOK').onclick = ()=>{ $('modal').classList.remove('on'); if(_modalCb) _modalCb(); _modalCb=null; };
+$('modal').onclick = e=>{ if(e.target.id==='modal'){$('modal').classList.remove('on'); _modalCb=null;} };
+
+function switchTab(name){ document.querySelector('.tab[data-pn="'+name+'"]')?.click(); }
+
+$('reconnectBtn').onclick = probe;
+$('baseUrl').addEventListener('keydown', e=>{ if(e.key==='Enter') probe(); });
+
+// Boot
+$('baseUrl').value = detectBase();
+probe();
+
+// Footer stats — periodic
+setInterval(()=>{
+  $('footStats').textContent = state.writes.size+' staged · '+state.rollback.size+' rollback · '+state.udts.length+' UDTs';
+}, 1000);
+</script>
+</body>
+</html>
